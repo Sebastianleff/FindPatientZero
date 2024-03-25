@@ -1,0 +1,4 @@
+STAY|7|You are too sick to travel:
+MOVE_1|1|An urgent business matter has called you to a neighboring town:
+MOVE_-1|1|You manage to hide yourself in the back of your caravan so the guards don’t stop you:
+MOVE_2|1|You hide your symptoms well enough to sneak out of town aboard a ship leaving harbor:

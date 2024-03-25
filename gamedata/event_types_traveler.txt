@@ -1,0 +1,6 @@
+STAY|Stay in your current city for 1 turn.
+MOVE_-1|Move down 1 city.
+MOVE_1|Move up 1 city.
+MOVE_2|Move up 2 cities.
+MOVE_5|Move up 5 cities.
+CHOOSE|Move to the uninfected city of your choice.
