@@ -9,7 +9,7 @@ def main():
         if name == "":
             break
         player_names.append(name)
-    
+
     # Get number of CPU players
     while True:
         num_cpu = input("Enter number of CPU players (default 6): ")
@@ -21,10 +21,12 @@ def main():
             break
         except ValueError:
             print("Please enter a valid number.")
-    
+
     # Get number of cities
     while True:
-        num_cities = input(f"Enter number of cities (default {len(player_names) + num_cpu}): ")
+        num_cities = input(
+            f"Enter number of cities (default {len(player_names) + num_cpu}): "
+            )
         if num_cities == "":
             num_cities = len(player_names) + num_cpu
             break
@@ -33,17 +35,16 @@ def main():
             break
         except ValueError:
             print("Please enter a valid number.")
-        
-
 
     # Create a new game control object
-    try: 
+    try:
         game = GameControl(player_names, num_cpu, num_cities)
     except ValueError as e:
         print(e)
         return
-    
+
     print(game)
+
 
 if __name__ == "__main__":
     main()

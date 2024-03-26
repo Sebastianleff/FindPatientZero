@@ -1,8 +1,10 @@
 class PlayerState:
     pass
 
+
 class CityState:
     pass
+
 
 class GameState:
     round: int

@@ -16,18 +16,20 @@ class Event:
         self.frequency = frequency
         self.flavor = flavor
 
+
 class TravelerEvent(Event):
     pass
+
 
 class CityEvent(Event):
     pass
 
+
 def load_events() -> dict[str, list[Event]]:
     city_event_types = load_data('gamedata/event_types_city.txt')
     traveler_event_types = load_data('gamedata/event_types_traveler.txt')
-    
+
     event_types = dict(city_event_types + traveler_event_types)
-    
 
     events: dict[str, list[Event]] = {
         'traveler_healthy': [],
