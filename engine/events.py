@@ -16,6 +16,9 @@ class Event:
         self.frequency = frequency
         self.flavor = flavor
 
+    def __str__(self) -> str:
+        return f"[{self.frequency}x] {self.flavor}"
+
 
 class TravelerEvent(Event):
     pass
