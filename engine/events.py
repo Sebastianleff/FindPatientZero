@@ -1,4 +1,4 @@
-from gamedata.load import load_data
+from engine.util import load_data
 
 
 class Event:
