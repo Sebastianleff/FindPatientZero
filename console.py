@@ -1,4 +1,4 @@
-from engine.engine import GameControl
+from engine.game import Game
 
 
 def main():
@@ -38,7 +38,7 @@ def main():
 
     # Create a new game control object
     try:
-        game = GameControl(player_names, num_cpu, num_cities)
+        game = Game(player_names, num_cpu, num_cities)
     except ValueError as e:
         print(e)
         return

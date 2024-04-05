@@ -1,4 +1,4 @@
-from engine.events import load_events
+from engine.entities.event import load_events
 
 if __name__ == "__main__":
     events = load_events()

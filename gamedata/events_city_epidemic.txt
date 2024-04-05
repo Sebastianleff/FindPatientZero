@@ -1,7 +1,7 @@
 PAUSE_2|1|Infection rates have been rising recently. You order a full lockdown.
 PAUSE_2|1|A rogue band of flagellants has appeared in the streets. The ensuing chaos causes you to temporarily shut down the city.
 
-PASS|1|"There is no disease in %CITY%." Your information campaign is greatly effective:
+PASS|1|"There is no disease in $CITY$." Your information campaign is greatly effective:
 PASS|1|Your law enforcement is able to render signs and discourse about a disease basically non-existent:
 
 PAUSE_1|1|Rising concerns of a spreading disease in the city lead you to temporarily close your harbors:
