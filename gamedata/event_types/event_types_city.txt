@@ -1,7 +1,7 @@
 PAUSE_1|You gain no passive infection stage this turn.
 PAUSE_2|You gain no passive infection stage this turn or the next.
-SURVEY|Roll your dice to search for infections.
-SURVEY_ADV|Roll your dice to search for infections twice.
+SURVEY|Roll to search for infections.
+SURVEY_ADV|Roll to search for infections twice.
 PASS|Take no action.
 ROLLBACK_1|Lose one infection stage this turn.
 ROLLBACK_2|Lose two infection stages this turn.

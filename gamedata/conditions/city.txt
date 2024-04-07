@@ -1,0 +1,4 @@
+HARBOR|Harbors in this city are closed for this turn.
+ROAD|Roads in this city are closed for this turn.
+MERCH|Merchants are blocked from entering this city for this turn.
+LOCKDOWN|For this turn and the next, travelers cannot leave this city, merchants cannot enter, and 
