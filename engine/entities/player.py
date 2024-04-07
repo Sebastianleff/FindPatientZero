@@ -105,13 +105,18 @@ class Player:
 
     def respond_suspicious(self, response: bool) -> None:
         """Set the player's response to the Suspicious event prompt."""
+
         self._sus_prompt_response = response
         self._pending_sus_prompt = False
 
-    def get_sus_prompt_status(self) -> bool:
+    @property
+    def pending_sus_prompt(self) -> bool:
+        """Whether the player has a pending Suspicious event prompt."""
         return self._pending_sus_prompt
 
-    def get_sus_prompt_response(self) -> bool | None:
+    @property
+    def sus_prompt_response(self) -> bool | None:
+        """The player's response to the Suspicious event prompt."""
         return self._sus_prompt_response
 
     @property
@@ -149,6 +154,40 @@ class Player:
             self._next_event = random.choice(EVENTS[self.next_event_category])
 
         return self._next_event
+    
+    @property
+    def city_options(self, cities: list[City]) -> list[City]:
+        """The cities that the player can choose from."""
+        if self.role != PlayerRole.TRAVELER:
+            raise ValueError("Only travelers can choose cities.")
+
+        if self.next_event.action == "CHOOSE":
+            options = [city for city in cities if not city.alerted]
+            if len(options) == 0:
+                options = None #TODO
+    
+    def prompt_city_choice(self) -> None:
+        """Update flags indicating that the player has a pending city choice
+        prompt."""
+
+        self._pending_city_prompt = True
+        self._city_prompt_response = None
+
+    def respond_city_choice(self, city: City) -> None:
+        """Set the player's response to the city choice prompt."""
+
+        self._city_prompt_response = city
+        self._pending_city_prompt = False
+    
+    @property
+    def pending_city_prompt(self) -> bool:
+        """Whether the player has a pending city choice prompt."""
+        return self._pending_city_prompt
+    
+    @property
+    def city_prompt_response(self) -> City | None:
+        """The player's response to the city choice prompt."""
+        return self._city_prompt_response
 
     def add_state(self, state: PlayerState) -> None:
         self._history.append(state)

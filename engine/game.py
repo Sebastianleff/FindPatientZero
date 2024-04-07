@@ -88,6 +88,8 @@ class Game:
         self.cities = [City() for _ in range(config.num_cities)]
         self.patient_zero = random.choice(self.players)
 
+    #TODO Function to indicate next phase?
+
     def round_start(self) -> None:
         self.round += 1
         # Determine which Governors can roll a Suspicious event
@@ -99,6 +101,7 @@ class Game:
         # respond_suspicious())
 
         # Roll all events once all players have made their decisions
+        # (Events are pre-rolled by the backend)
 
         # Check events for required city choice prompts
 
