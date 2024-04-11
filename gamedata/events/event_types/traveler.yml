@@ -1,0 +1,23 @@
+event_types:
+
+# Do nothing
+- action: stay
+  description: 'Stay in your current city for 1 turn.'
+
+# Move to another city
+- action: move
+  amount: -1
+  description: 'Move down 1 city.'
+- action: move
+  amount: 1
+  description: 'Move up 1 city.'
+- action: move
+  amount: 2
+  description: 'Move up 2 cities.'
+- action: move
+  amount: 5
+  description: 'Move up 5 cities.'
+
+# Move to a chosen city
+- action: choose
+  description: 'Move to the uninfected city of your choice.'

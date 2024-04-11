@@ -1,0 +1,27 @@
+events:
+
+# Stay in city (70%)
+- description: 'You are too sick to travel:'
+  action: stay
+  frequency: 7
+
+# Move up 1 (10%)
+- description: 'An urgent business matter has called you to a neighboring town:'
+  action: move
+  amount: 1
+  frequency: 1
+  condition: merch
+
+# Move down 1, sneak (10%)
+- description: 'You manage to hide yourself in the back of your caravan so the guards don’t stop you:'
+  action: move
+  amount: -1
+  frequency: 1
+  condition: road
+
+# Move up 2 (10%)
+- description: 'You hide your symptoms well enough to sneak out of town aboard a ship leaving harbor:'
+  action: move
+  amount: 2
+  frequency: 1
+  condition: harbor

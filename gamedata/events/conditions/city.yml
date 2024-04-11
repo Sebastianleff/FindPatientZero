@@ -1,0 +1,9 @@
+conditions:
+- name: harbor
+  description: 'Harbors in this city are closed for this turn.'
+- name: road
+  description: 'Roads in this city are closed for this turn.'
+- name: merch
+  description: 'Merchants are blocked from entering this city for this turn.'
+- name: lockdown
+  description: 'For this turn and the next, travelers cannot leave this city, merchants cannot enter, and roads/harbors are closed.'

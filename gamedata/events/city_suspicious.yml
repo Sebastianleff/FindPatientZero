@@ -1,0 +1,49 @@
+# Partial shutdown, pause infection for 1 turn (10%)
+- description: 'There are increasing reports of dead animals in the streets. You order a partial shutdown to contain the following panic:'
+  action: pause
+  amount: 1
+  frequency: 1
+- description: 'You have had a recent influx of plague refugees and order a partial shutdown to control and isolate their movements until you can be sure they aren''t infected:'
+  action: pause
+  amount: 1
+  frequency: 1
+
+# Full shutdown, pause infection for 2 turns (10%)
+- description: 'You find a string of human bodies in the streets with no visible cause of death. You shut down the city while investigating:'
+  action: pause
+  amount: 2
+  frequency: 1
+  condition: lockdown
+- description: 'While looking for infections, your guards find evidence of a serial murderer. You lock down the city to find this malefactor and bring them to justice:'
+  action: pause
+  amount: 2
+  frequency: 1
+  condition: lockdown
+
+# Survey for infection (coughing) (60%)
+- description: 'People have been seeking headache remedies at apothecaries:'
+  action: survey
+  frequency: 2
+- description: 'Your local plague doctor has been getting reports of coughing fits:'
+  action: survey
+  frequency: 2
+- description: 'In light of news of a spreading plague, you tell your city guards to look out for citizens showing symptoms:'
+  action: survey
+  frequency: 2
+- description: 'You begin paying street urchins for information of the populace:'
+  action: survey
+  frequency: 2
+- description: 'The guards at the gates have begun turning away people who are coughing and disoriented. You decide to survey the population to be safe:'
+  action: survey
+  frequency: 2
+- description: 'The local brothels are complaining of decreased revenue, having to turn away visibly ill clients:'
+  action: survey
+  frequency: 2
+
+# Survey for infection (buboes) (30%)
+- description: 'Citizens have been acting strangely in the streets. You survey the population for buboes:'
+  action: survey
+  frequency: 2
+- description: 'You have heard reports of a neighboring city finding cases of plague. You survey your population for buboes:'
+  action: survey
+  frequency: 2

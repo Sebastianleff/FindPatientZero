@@ -1,0 +1,7 @@
+conditions:
+- name: harbor
+  description: 'Harbors in the origin and destination cities must be open for this move to succeed.'
+- name: road
+  description: 'Roads in the origin and destination cities must be open for this move to succeed.'
+- name: merch
+  description: 'Merchants must be allowed into the destination city for this move to succeed.'

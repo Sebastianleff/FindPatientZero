@@ -1,3 +1,0 @@
-HARBOR|Harbors in the origin and destination cities must be open for this move to succeed.
-ROAD|Roads in the origin and destination cities must be open for this move to succeed.
-MERCH|Merchants must be allowed into the city for this move to succeed.

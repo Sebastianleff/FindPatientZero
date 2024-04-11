@@ -1,0 +1,27 @@
+event_types:
+
+# Pause infection
+- action: pause
+  amount: 1
+  flavor: 'You gain no passive infection stage this turn.'
+- action: pause
+  amount: 2
+  flavor: 'You gain no passive infection stage this turn or the next.'
+
+# Survey for infections
+- action: survey
+  flavor: 'Roll to search for infections.'
+- action: survey_adv
+  flavor: 'Roll to search for infections twice.'
+
+# Do nothing
+- action: pass
+  flavor: 'Take no action.'
+
+# Roll back infection stages
+- action: rollback
+  amount: 1
+  flavor: 'Lose one infection stage this turn.'
+- action: rollback
+  amount: 2
+  flavor: 'Lose two infection stages this turn.'

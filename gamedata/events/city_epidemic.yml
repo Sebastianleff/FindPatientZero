@@ -1,0 +1,54 @@
+events:
+
+# Full shutdown, pause infection for 2 turns (20%)
+- description: Infection rates have been rising recently. You order a full lockdown.
+  action: pause
+  amount: 2
+  frequency: 1
+  condition: lockdown
+- description: A rogue band of flagellants has appeared in the streets. The ensuing chaos causes you to temporarily shut down the city.
+  action: pause
+  amount: 2
+  frequency: 1
+  condition: lockdown
+
+# Do nothing (20%)
+- description: '"There is no disease in $CITY$." Your information campaign is greatly effective:'
+  action: pass
+  frequency: 1
+- description: 'Your law enforcement is able to render signs and discourse about a disease basically non-existent:'
+  action: pass
+  frequency: 1
+
+# Partial shutdown, pause infection for 1 turn (40%)
+- description: 'Rising concerns of a spreading disease in the city lead you to temporarily close your harbors:'
+  action: pause
+  amount: 1
+  frequency: 1
+  condition: harbor
+- description: 'Rising concerns of a spreading disease in the city lead you to temporarily close your roads:'
+  action: pause
+  amount: 1
+  frequency: 1
+  condition: road
+- description: 'Your local plague doctor suggests that people wear masks for a time:'
+  action: pause
+  amount: 1
+  frequency: 1
+- description: 'Rising concerns of a spreading disease in the city lead you to temporarily order your citizens to stay in their homes:'
+  action: pause
+  amount: 1
+  frequency: 1
+
+# Purge infected sector, roll back infection 2 (10%)
+- description: 'You find a heavily infected neighborhood and send the residents into exile:'
+  action: rollback
+  amount: 2
+  frequency: 1
+
+# Chase out merchants, roll back infection 1 (10%)
+- description: 'You prohibit merchants from entering the city to prevent inbound infections:'
+  action: rollback
+  amount: 1
+  frequency: 1
+  condition: merch

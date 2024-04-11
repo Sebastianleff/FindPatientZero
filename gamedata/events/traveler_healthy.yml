@@ -1,0 +1,72 @@
+events:
+# Stay in current (50%)
+- description: 'A horse in your caravan has broken a leg. You have to buy a new one:'
+  action: stay
+  frequency: 2
+- description: 'You decide to wait out intense storms on the road.'
+  action: stay
+  frequency: 1
+- description: 'There was an unrelated outbreak among your livestock. You have to replenish your numbers before moving on:'
+  action: stay
+  frequency: 1
+- description: 'A business opportunity that you can’t refuse keeps you in town for a bit longer than you planned:'
+  action: stay
+  frequency: 2
+
+# Move up 2 (10%)
+- description: 'You lost badly in a betting ring and have to skip town:'
+  action: move
+  amount: 2
+  frequency: 1
+- description: 'The townspeople discovered your illegitimate baby. It’s probably best that you skip town:'
+  action: move
+  amount: 2
+  frequency: 1
+
+# Move up 5 (10%)
+- description: 'A rich and powerful customer caught you with his wife. Run:'
+  action: move
+  amount: 5
+  frequency: 2
+
+# Move up 1 (20%)
+- description: 'You move to the next stop on your planned route:'
+  action: move
+  amount: 1
+  frequency: 1
+- description: 'You have a black cat, leading the townsfolk to accuse you of witchcraft:'
+  action: move
+  amount: 1
+  frequency: 1
+- description: 'Something about this city is putting you off your game:'
+  action: move
+  amount: 1
+  frequency: 1
+- description: 'You stole from a town guardsman. Really, what were you thinking?'
+  action: move
+  amount: 1
+  frequency: 1
+
+# Move down 1 (20%)
+- description: 'You get a lucrative offer from a buyer in a neighboring city:'
+  action: move
+  amount: -1
+  frequency: 1
+  condition: merch
+- description: 'Food shortages force you to leave town:'
+  action: move
+  amount: -1
+  frequency: 1
+- description: 'You hear that some of your wares are selling for twice as much in the next town over.'
+  action: move
+  amount: -1
+  frequency: 2
+  condition: merch
+
+# Move to uninfected city of choice (10%)
+- description: 'You hear rumblings of an infection in the city:'
+  action: choose
+  frequency: 1
+- description: 'You decide to visit relatives in another town:'
+  action: choose
+  frequency: 1
