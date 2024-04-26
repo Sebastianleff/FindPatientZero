@@ -88,7 +88,7 @@ class Game:
         self.cities = [City() for _ in range(config.num_cities)]
         self.patient_zero = random.choice(self.players)
 
-    #TODO Function to indicate next phase?
+    # TODO Function to indicate next phase?
 
     def round_start(self) -> None:
         self.round += 1

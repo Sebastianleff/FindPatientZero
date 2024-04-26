@@ -1,7 +1,7 @@
 import random
 from engine.game import GameConfig
 from engine.entities.player import Player
-from engine.util import load_data
+from gamedata.load import load_city_names
 
 
 class CityState:
@@ -31,7 +31,8 @@ class CityState:
 
 
 class City:
-    NAMES: list[str] = load_data("gamedata/city_names.txt")
+    names: list[str] = load_city_names()
+    """The list of available city names."""
 
     _name: str
     """The name of the city."""

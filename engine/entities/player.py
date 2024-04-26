@@ -3,7 +3,7 @@ import random
 
 from engine.entities.city import City
 from engine.entities.event import EVENTS, Event, EventCategory
-from engine.util import load_data
+from gamedata.load import load_cpu_names
 
 
 class InfectionState(Enum):
@@ -145,6 +145,8 @@ class Player:
     def next_event(self) -> Event | None:
         """The next event that the player must resolve."""
 
+        # TODO: Anti-repeat logic
+
         # If the player has no next event category, return None
         if self.next_event_category is None:
             return None
@@ -154,7 +156,7 @@ class Player:
             self._next_event = random.choice(EVENTS[self.next_event_category])
 
         return self._next_event
-    
+
     @property
     def city_options(self, cities: list[City]) -> list[City]:
         """The cities that the player can choose from."""
@@ -164,8 +166,8 @@ class Player:
         if self.next_event.action == "CHOOSE":
             options = [city for city in cities if not city.alerted]
             if len(options) == 0:
-                options = None #TODO
-    
+                options = None  # TODO
+
     def prompt_city_choice(self) -> None:
         """Update flags indicating that the player has a pending city choice
         prompt."""
@@ -178,12 +180,12 @@ class Player:
 
         self._city_prompt_response = city
         self._pending_city_prompt = False
-    
+
     @property
     def pending_city_prompt(self) -> bool:
         """Whether the player has a pending city choice prompt."""
         return self._pending_city_prompt
-    
+
     @property
     def city_prompt_response(self) -> City | None:
         """The player's response to the city choice prompt."""
@@ -194,7 +196,8 @@ class Player:
 
 
 class CPUPlayer(Player):
-    names: list[str] = load_data("gamedata/cpu_names.txt")
+    names: list[str] = load_cpu_names()
+    """The list of available CPU player names."""
 
     def __init__(self) -> None:
         index = random.randint(0, len(CPUPlayer.names) - 1)

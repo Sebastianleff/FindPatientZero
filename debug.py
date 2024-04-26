@@ -1,9 +1,8 @@
-from engine.entities.event import load_events
+from engine.entities.event import EVENTS
 
 if __name__ == "__main__":
-    events = load_events()
-    for category, event_list in events.items():
-        print(f"{category.upper()} events:")
+    for category, event_list in EVENTS.items():
+        print(f"=={category.upper()}==")
         for event in event_list:
-            print(event)
+            print(f"\t{event}")
         print()
