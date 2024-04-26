@@ -63,6 +63,7 @@ class Event:
 
         return output
 
+    # TODO: Reimplement elsewhere to avoid circular import
     # def formatted(self, player: Player) -> str:
     #     """Return the event flavor text with player-specific information."""
 

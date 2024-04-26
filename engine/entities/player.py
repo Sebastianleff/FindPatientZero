@@ -162,11 +162,19 @@ class Player:
         """The cities that the player can choose from."""
         if self.role != PlayerRole.TRAVELER:
             raise ValueError("Only travelers can choose cities.")
-
-        if self.next_event.action == "CHOOSE":
-            options = [city for city in cities if not city.alerted]
-            if len(options) == 0:
-                options = None  # TODO
+        
+        elif self.city.in_lockdown:
+            return [self.city]
+        elif self.next_event.action == "choose":
+            options = [city for city in cities if not city.can_move(self.next_event)]
+            if len(options) > 0:
+                return options
+        elif self.next_event.action == "move":
+            curr_index = cities.index(self.city)
+            target_city = cities[(curr_index + self.next_event.amount) % len(cities)]
+            if target_city.can_move(self.next_event):
+                return [target_city]
+        return [self.city]
 
     def prompt_city_choice(self) -> None:
         """Update flags indicating that the player has a pending city choice
@@ -177,7 +185,9 @@ class Player:
 
     def respond_city_choice(self, city: City) -> None:
         """Set the player's response to the city choice prompt."""
-
+        if city not in self.city_options:
+            raise ValueError("Invalid city choice.")
+        
         self._city_prompt_response = city
         self._pending_city_prompt = False
 

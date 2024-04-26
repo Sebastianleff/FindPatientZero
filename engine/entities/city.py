@@ -1,4 +1,5 @@
 import random
+from engine.entities.event import Event, EventCategory
 from engine.game import GameConfig
 from engine.entities.player import Player
 from gamedata.load import load_city_names
@@ -16,6 +17,15 @@ class CityState:
 
     alerted: bool
     """Whether the city has been alerted to an epidemic."""
+
+    lockdown: int
+    """The number of rounds of lockdown remaining."""
+
+    infection_pause: int
+    """The number of rounds of infection pause remaining."""
+
+    conditions: list[str]
+    """The conditions currently affecting the city."""
 
     def __init__(
         self,
@@ -42,6 +52,10 @@ class City:
 
     governor: Player | None
     """The player who is currently the governor of the city."""
+    
+    @property
+    def in_lockdown(self) -> bool:
+        return self.state.lockdown > 0
 
     def __init__(self) -> None:
         index = random.randint(0, len(City.NAMES) - 1)
@@ -78,3 +92,21 @@ class City:
                 round - self.state.last_sus_roll >= config.suspicious_cooldown
             )
         return True
+    
+    def can_move(self, event: Event) -> bool:
+        """Determine if a Traveler carrying out an event can move to the city."""
+        # Verify that the event is valid
+        if event.category != EventCategory.TRAVELER:
+            raise ValueError("Only travelers can move.")
+        # For choose events, players can only move to uninfected cities
+        elif event.action == "choose" and self.alerted:
+            return False
+        # For any movement, the event condition must not conflict
+        elif event.condition is not None:
+            return event.condition not in self.state.conditions
+        return True
+    
+
+
+            
+            

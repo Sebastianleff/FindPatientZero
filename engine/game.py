@@ -1,3 +1,4 @@
+from enum import Enum
 import random
 
 from engine.entities.city import City, CityState
@@ -47,6 +48,12 @@ class GameState:
     cities: list[CityState]
     """The states of each city in the game."""
 
+class GamePhase(Enum):
+    """The phase of a game."""
+    ROUND_START = "round_start"
+    ROUND_END = "round_end"
+    GAME_END = "game_end"
+
 
 class Game:
 
@@ -88,7 +95,10 @@ class Game:
         self.cities = [City() for _ in range(config.num_cities)]
         self.patient_zero = random.choice(self.players)
 
-    # TODO Function to indicate next phase?
+    # TODO Implement phase control
+    @property
+    def next_phase(self) -> GamePhase:
+        return GamePhase.ROUND_START
 
     def round_start(self) -> None:
         self.round += 1
