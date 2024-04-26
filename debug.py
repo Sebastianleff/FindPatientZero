@@ -1,4 +1,5 @@
-"""This file should be used to debug the project. It is not intended to be used in the final product."""
+"""This file should be used to debug the project. It is not intended to be
+used in the final product."""
 
 from engine.entities.event import EVENTS
 
