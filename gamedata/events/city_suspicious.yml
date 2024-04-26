@@ -1,3 +1,5 @@
+events:
+
 # Partial shutdown, pause infection for 1 turn (10%)
 - description: 'There are increasing reports of dead animals in the streets. You order a partial shutdown to contain the following panic:'
   action: pause

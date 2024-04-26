@@ -32,6 +32,7 @@ def load_conditions(key: str) -> list[dict[str, str]]:
 
 
 def load_events(key: str) -> list[dict[str, str | int]]:
-    return _load_file(
+    loaded = _load_file(
         os.path.join(_event_dir, f"{key}.yml")
-    )['events']
+    )
+    return loaded['events']
