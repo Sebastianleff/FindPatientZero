@@ -9,7 +9,7 @@ class CityState:
     infection_stage: int
     """The level of infection in the city."""
 
-    last_sus_roll: int
+    last_sus_roll: int | None
     """The last time a Suspicious event was rolled for this city."""
 
     governor: Player | None
@@ -30,7 +30,7 @@ class CityState:
     def __init__(
         self,
         infection_stage: int = 0,
-        last_sus_roll: int = None,
+        last_sus_roll: int | None = None,
         governor: Player | None = None,
         alerted: bool = False,
     ) -> None:
@@ -52,15 +52,15 @@ class City:
 
     governor: Player | None
     """The player who is currently the governor of the city."""
-    
+
     @property
     def in_lockdown(self) -> bool:
         return self.state.lockdown > 0
 
     def __init__(self) -> None:
-        index = random.randint(0, len(City.NAMES) - 1)
-        self.name = City.NAMES.pop(index)
-        self.state = CityState()
+        index = random.randint(0, len(City.names) - 1)
+        self._name = City.names.pop(index)
+        self._history = [CityState()]
         self.governor = None
 
     def __str__(self) -> str:
@@ -88,25 +88,21 @@ class City:
         if self.governor is None:
             return False
         if self.state.last_sus_roll is not None:
-            return (
-                round - self.state.last_sus_roll >= config.suspicious_cooldown
-            )
+            return round - self.state.last_sus_roll >= \
+                config.suspicious_cooldown
         return True
-    
+
     def can_move(self, event: Event) -> bool:
-        """Determine if a Traveler carrying out an event can move to the city."""
+        """Determine if a Traveler carrying out an event can move to the
+        city."""
         # Verify that the event is valid
-        if event.category != EventCategory.TRAVELER:
+        if event.category not in [
+                EventCategory.TRAV_HEALTHY, EventCategory.TRAV_INFECTED]:
             raise ValueError("Only travelers can move.")
         # For choose events, players can only move to uninfected cities
-        elif event.action == "choose" and self.alerted:
+        elif event._action == "choose" and self.alerted:
             return False
         # For any movement, the event condition must not conflict
         elif event.condition is not None:
             return event.condition not in self.state.conditions
         return True
-    
-
-
-            
-            

@@ -8,6 +8,7 @@ class EventCategory(Enum):
     TRAV_INFECTED = "Infected"
     CITY_SUSPICIOUS = "Suspicious"
     CITY_EPIDEMIC = "Epidemic"
+    NONE = "None"
 
     @property
     def key(self) -> str:
@@ -19,6 +20,7 @@ class EventCategory(Enum):
             return "city_suspicious"
         elif self == EventCategory.CITY_EPIDEMIC:
             return "city_epidemic"
+        return "none"
 
 
 class Event:
@@ -28,40 +30,51 @@ class Event:
     description: str
     """The description (flavor text) of the event."""
 
-    action: str
+    _action: str
     """The action that the traveler or city must take."""
 
     amount: int
     """The quantity (such as duration for lockdown events or distance for
     movement events) associated with the event (if any)."""
 
-    condition: str
+    condition: str | None
     """The condition associated with the event (if any)."""
 
     def __init__(
         self,
         category: EventCategory,
-        description: str,
-        action: str,
-        amount: int = None,
-        condition: str = None,
+        description: str | None = None,
+        action: str | None = None,
+        amount: int = 0,
+        condition: str | None = None,
     ) -> None:
         self.category = category
+        if category == EventCategory.NONE:
+            self.description = "No event"
+            self._action = "none"
+        elif description is None or action is None:
+            raise ValueError("Event must have a description and action.")
+        assert description is not None and action is not None
         self.description = description
-        self.action = action
+        self._action = action
         self.amount = amount
         self.condition = condition
 
     def __str__(self) -> str:
         output = f"{self.category.value} event - \"{self.description}\""
-        output += f" [action: {self.action}"
-        if self.amount is not None:
+        output += f" [action: {self._action}"
+        if self.amount != 0:
             output += f" {self.amount}"
         if self.condition is not None:
             output += f", condition: {self.condition}"
         output += "]"
 
         return output
+
+    @property
+    def action(self) -> str:
+        return self._action
+
 
     # TODO: Reimplement elsewhere to avoid circular import
     # def formatted(self, player: Player) -> str:
@@ -77,7 +90,6 @@ class Event:
 
     #     return output
 
-
 def _get_events() -> dict[EventCategory, list[Event]]:
 
     evt_types = {
@@ -89,8 +101,10 @@ def _get_events() -> dict[EventCategory, list[Event]]:
         'traveler': load_conditions('traveler'),
     }
 
-    events = dict()
+    events: dict[EventCategory, list[Event]] = dict()
     for cat in EventCategory:
+        if cat == EventCategory.NONE:
+            continue
         events[cat] = list()
         plyr_type = 'city' if 'city' in cat.key else 'traveler'
         for event in load_events(cat.key):
@@ -106,19 +120,19 @@ def _get_events() -> dict[EventCategory, list[Event]]:
             if event.get('condition') is not None:
                 cond_text = next(iter(
                     c['description'] for c in conditions[plyr_type]
-                    if c['name'] == event['condition']
+                    if c['name'] == event.get('condition')
                 ), None)
                 if cond_text is None:
                     raise ValueError(
-                        f"Unrecognized condition: {event['condition']}"
+                        f"Unrecognized condition: {event.get('condition')}"
                     )
 
-            desc = event['description'] + " " + action_text
+            desc = (event['description']) + " " + action_text
             new_event = Event(
                 category=cat,
                 description=desc,
                 action=event['action'],
-                amount=event.get('amount'),
+                amount=event.get('amount', 0),
                 condition=event.get('condition'),
             )
             events[cat].extend([new_event] * event['frequency'])

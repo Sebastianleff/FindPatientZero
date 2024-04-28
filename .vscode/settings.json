@@ -1,0 +1,4 @@
+{
+    "cornflakes.linter.executablePath": "venv/lib/python3.11/site-packages/flake8",
+    "python.analysis.typeCheckingMode": "basic"
+}

@@ -120,8 +120,8 @@ class Player:
         return self._sus_prompt_response
 
     @property
-    def next_event_category(self) -> EventCategory | None:
-        category = None
+    def next_event_category(self) -> EventCategory:
+        category = EventCategory.NONE
 
         if self.role == PlayerRole.TRAVELER:
             if self.health in [
@@ -136,20 +136,20 @@ class Player:
         elif self.role == PlayerRole.GOVERNOR:
             if self.city.alerted:
                 category = EventCategory.CITY_EPIDEMIC
-            elif self.get_sus_prompt_response():
+            elif self.sus_prompt_response is not None:
                 category = EventCategory.CITY_SUSPICIOUS
 
         return category
 
     @property
-    def next_event(self) -> Event | None:
+    def next_event(self) -> Event:
         """The next event that the player must resolve."""
 
         # TODO: Anti-repeat logic
 
-        # If the player has no next event category, return None
-        if self.next_event_category is None:
-            return None
+        # If the player has no next event category, return a "no event" event
+        if self.next_event_category is EventCategory.NONE:
+            return Event(EventCategory.NONE)
 
         # If an event has not been chosen yet, choose one at random
         if self._next_event is None:
@@ -162,14 +162,14 @@ class Player:
         """The cities that the player can choose from."""
         if self.role != PlayerRole.TRAVELER:
             raise ValueError("Only travelers can choose cities.")
-        
+
         elif self.city.in_lockdown:
             return [self.city]
         elif self.next_event.action == "choose":
             options = [city for city in cities if not city.can_move(self.next_event)]
             if len(options) > 0:
                 return options
-        elif self.next_event.action == "move":
+        elif self.next_event._action == "move":
             curr_index = cities.index(self.city)
             target_city = cities[(curr_index + self.next_event.amount) % len(cities)]
             if target_city.can_move(self.next_event):
@@ -187,7 +187,7 @@ class Player:
         """Set the player's response to the city choice prompt."""
         if city not in self.city_options:
             raise ValueError("Invalid city choice.")
-        
+
         self._city_prompt_response = city
         self._pending_city_prompt = False
 
