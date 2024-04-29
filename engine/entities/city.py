@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from random import randint
 
+from engine.entities.event import Event
 from engine.entities.player import Player
 from engine.game import GameConfig
 from gamedata.load import load_city_names
@@ -31,6 +32,9 @@ class CityState:
 
     conditions: list[str] = field(default_factory=list)
     """The conditions currently affecting the city."""
+
+    event: Event = Event()
+    """The event that the city resolved this round."""
 
 
 class City:

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 from gamedata.load import load_conditions, load_event_types, load_events
 
@@ -23,46 +24,33 @@ class EventCategory(Enum):
         return "none"
 
 
+@dataclass
 class Event:
-    category: EventCategory
+    category: EventCategory = EventCategory.NONE
     """The category (wheel) of event."""
 
-    description: str
+    description: str = "No event"
     """The description (flavor text) of the event."""
 
-    _action: str
+    action: str = "none"
     """The action that the traveler or city must take."""
 
-    amount: int
+    amount: int = 0
     """The quantity (such as duration for lockdown events or distance for
     movement events) associated with the event (if any)."""
 
-    condition: str | None
+    condition: str | None = None
     """The condition associated with the event (if any)."""
 
-    def __init__(
-        self,
-        category: EventCategory,
-        description: str | None = None,
-        action: str | None = None,
-        amount: int = 0,
-        condition: str | None = None,
-    ) -> None:
-        self.category = category
-        if category == EventCategory.NONE:
-            self.description = "No event"
-            self._action = "none"
-        elif description is None or action is None:
-            raise ValueError("Event must have a description and action.")
-        assert description is not None and action is not None
-        self.description = description
-        self._action = action
-        self.amount = amount
-        self.condition = condition
+    def __post_init__(self) -> None:
+        if self.category != EventCategory.NONE:
+            assert self.description != "No event", \
+                "Event description is missing"
+            assert self.action != "none", "Event action is missing"
 
     def __str__(self) -> str:
         output = f"{self.category.value} event - \"{self.description}\""
-        output += f" [action: {self._action}"
+        output += f" [action: {self.action}"
         if self.amount != 0:
             output += f" {self.amount}"
         if self.condition is not None:
@@ -70,11 +58,6 @@ class Event:
         output += "]"
 
         return output
-
-    @property
-    def action(self) -> str:
-        return self._action
-
 
     # TODO: Reimplement elsewhere to avoid circular import
     # def formatted(self, player: Player) -> str:
@@ -89,6 +72,7 @@ class Event:
     #         output = output.replace("$GOVERNOR$", player.city.governor.name)
 
     #     return output
+
 
 def _get_events() -> dict[EventCategory, list[Event]]:
 

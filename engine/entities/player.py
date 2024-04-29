@@ -39,6 +39,9 @@ class PlayerState:
     city: City | None = None
     """The city the player is currently in."""
 
+    event: Event = Event()
+    """The event that the player resolved this round."""
+
 
 class Player:
     _name: str
@@ -112,6 +115,11 @@ class Player:
         return self._sus_prompt_response
 
     @property
+    def last_event(self) -> Event:
+        """The last event that the player resolved."""
+        return self.state.event
+
+    @property
     def next_event_category(self) -> EventCategory:
         category = EventCategory.NONE
 
@@ -139,15 +147,22 @@ class Player:
     def next_event(self) -> Event:
         """The next event that the player must resolve."""
 
-        # TODO: Anti-repeat logic
-
         # If the player has no next event category, return a "no event" event
         if self.next_event_category is EventCategory.NONE:
-            return Event(EventCategory.NONE)
+            return Event()
 
         # If an event has not been chosen yet, choose one at random
         if self._next_event is None:
-            self._next_event = random.choice(EVENTS[self.next_event_category])
+            pool = EVENTS[self.next_event_category].copy()
+
+            # Remove the last event from the pool to avoid repeats
+            try:
+                pool.remove(self.last_event)
+            # If the last event is not in the pool, ignore the error
+            except ValueError:
+                pass
+
+            self._next_event = random.choice(pool)
 
         return self._next_event
 
@@ -162,7 +177,7 @@ class Player:
             raise ValueError("Only travelers can move.")
         assert self.city is not None
         # For choose events, players can only move to uninfected cities
-        if self.next_event._action == "choose" and dest.alerted:
+        if self.next_event.action == "choose" and dest.alerted:
             return False
         # For any movement, the event condition must not conflict
         # TODO: Conditions should be checked in the event resolution
@@ -183,7 +198,7 @@ class Player:
             options = [city for city in cities if not self.can_move(city)]
             if len(options) > 0:
                 return options
-        elif self.next_event._action == "move":
+        elif self.next_event.action == "move":
             curr_index = cities.index(self.city)
             target_city = cities[
                 (curr_index + self.next_event.amount) % len(cities)
