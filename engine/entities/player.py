@@ -1,5 +1,6 @@
-from enum import Enum
+from dataclasses import dataclass
 import random
+from enum import Enum
 
 from engine.entities.city import City
 from engine.entities.event import EVENTS, Event, EventCategory
@@ -24,28 +25,19 @@ class PlayerRole(Enum):
     OBSERVER = "Observer"
 
 
+@dataclass
 class PlayerState:
-    health: InfectionState
+    health: InfectionState = InfectionState.HEALTHY
     """The health state of the traveler."""
 
-    infection_timer: int
-    """The timer for the traveler's infection."""
+    infected_round: int | None = None
+    """The round in which the traveler was infected."""
 
-    role: PlayerRole
+    role: PlayerRole = PlayerRole.TRAVELER
     """The role of the player."""
 
-    city: City
+    city: City | None = None
     """The city the player is currently in."""
-
-    def __init__(
-        self,
-        health: InfectionState = InfectionState.HEALTHY,
-        infection_timer: int = 0,
-        role: PlayerRole = PlayerRole.TRAVELER,
-    ) -> None:
-        self.health = health
-        self.infection_timer = infection_timer
-        self.role = role
 
 
 class Player:
@@ -85,7 +77,7 @@ class Player:
         return self._history[-1]
 
     @property
-    def city(self) -> City:
+    def city(self) -> City | None:
         return self.state.city
 
     @property
@@ -134,6 +126,8 @@ class Player:
                 category = EventCategory.TRAV_INFECTED
 
         elif self.role == PlayerRole.GOVERNOR:
+            assert self.city is not None
+            assert self.pending_sus_prompt is False
             if self.city.alerted:
                 category = EventCategory.CITY_EPIDEMIC
             elif self.sus_prompt_response is not None:
@@ -157,22 +151,44 @@ class Player:
 
         return self._next_event
 
-    @property
+    def can_move(self, dest: City) -> bool:
+        """Whether the player can move to a given city."""
+
+        # Verify that the event is valid
+        if self.next_event.category not in [
+            EventCategory.TRAV_HEALTHY,
+            EventCategory.TRAV_INFECTED,
+        ]:
+            raise ValueError("Only travelers can move.")
+        assert self.city is not None
+        # For choose events, players can only move to uninfected cities
+        if self.next_event._action == "choose" and dest.alerted:
+            return False
+        # For any movement, the event condition must not conflict
+        # TODO: Conditions should be checked in the event resolution
+        elif self.next_event.condition is not None:
+            return self.next_event.condition not in (
+                self.city.conditions + dest.conditions
+            )
+        return True
+
     def city_options(self, cities: list[City]) -> list[City]:
         """The cities that the player can choose from."""
         if self.role != PlayerRole.TRAVELER:
             raise ValueError("Only travelers can choose cities.")
-
-        elif self.city.in_lockdown:
+        assert self.city is not None
+        if self.city.in_lockdown:
             return [self.city]
         elif self.next_event.action == "choose":
-            options = [city for city in cities if not city.can_move(self.next_event)]
+            options = [city for city in cities if not self.can_move(city)]
             if len(options) > 0:
                 return options
         elif self.next_event._action == "move":
             curr_index = cities.index(self.city)
-            target_city = cities[(curr_index + self.next_event.amount) % len(cities)]
-            if target_city.can_move(self.next_event):
+            target_city = cities[
+                (curr_index + self.next_event.amount) % len(cities)
+            ]
+            if self.can_move(target_city):
                 return [target_city]
         return [self.city]
 
@@ -185,8 +201,6 @@ class Player:
 
     def respond_city_choice(self, city: City) -> None:
         """Set the player's response to the city choice prompt."""
-        if city not in self.city_options:
-            raise ValueError("Invalid city choice.")
 
         self._city_prompt_response = city
         self._pending_city_prompt = False

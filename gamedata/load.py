@@ -31,7 +31,7 @@ def load_city_names() -> NameList:
 
 def load_event_types(key: str) -> list[EventTypeData]:
     loaded: EventTypeList = _load_file(
-        os.path.join(_event_dir, "types", f"{key}.yml")
+        os.path.join(_event_dir, "event_types", f"{key}.yml")
     )
     return loaded["event_types"]
 

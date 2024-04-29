@@ -1,43 +1,36 @@
-import random
-from engine.entities.event import Event, EventCategory
-from engine.game import GameConfig
+from dataclasses import dataclass, field
+from random import randint
+
 from engine.entities.player import Player
+from engine.game import GameConfig
 from gamedata.load import load_city_names
 
 
+@dataclass
 class CityState:
-    infection_stage: int
+    infection_stage: int = 0
     """The level of infection in the city."""
 
-    last_sus_roll: int | None
+    last_sus_roll: int | None = None
     """The last time a Suspicious event was rolled for this city."""
 
-    governor: Player | None
+    governor: Player | None = None
     """The player who is currently the governor of the city."""
 
-    alerted: bool
+    travelers: list[Player] = field(default_factory=list)
+    """The list of travelers currently in the city."""
+
+    alerted: bool = False
     """Whether the city has been alerted to an epidemic."""
 
-    lockdown: int
+    lockdown: int = 0
     """The number of rounds of lockdown remaining."""
 
-    infection_pause: int
+    infection_pause: int = 0
     """The number of rounds of infection pause remaining."""
 
-    conditions: list[str]
+    conditions: list[str] = field(default_factory=list)
     """The conditions currently affecting the city."""
-
-    def __init__(
-        self,
-        infection_stage: int = 0,
-        last_sus_roll: int | None = None,
-        governor: Player | None = None,
-        alerted: bool = False,
-    ) -> None:
-        self.infection_stage = infection_stage
-        self.last_sus_roll = last_sus_roll
-        self.governor = governor
-        self.alerted = alerted
 
 
 class City:
@@ -57,8 +50,12 @@ class City:
     def in_lockdown(self) -> bool:
         return self.state.lockdown > 0
 
+    @property
+    def conditions(self) -> list[str]:
+        return self.state.conditions
+
     def __init__(self) -> None:
-        index = random.randint(0, len(City.names) - 1)
+        index = randint(0, len(City.names) - 1)
         self._name = City.names.pop(index)
         self._history = [CityState()]
         self.governor = None
@@ -80,6 +77,10 @@ class City:
     def alerted(self) -> bool:
         return self.state.alerted
 
+    @property
+    def infection_stage(self) -> int:
+        return self.state.infection_stage
+
     def can_roll_suspicious(self, round: int, config: GameConfig) -> bool:
         """Determine if the city can roll a Suspicious event."""
 
@@ -88,21 +89,37 @@ class City:
         if self.governor is None:
             return False
         if self.state.last_sus_roll is not None:
-            return round - self.state.last_sus_roll >= \
-                config.suspicious_cooldown
+            return (
+                round - self.state.last_sus_roll >= config.suspicious_cooldown
+            )
         return True
 
-    def can_move(self, event: Event) -> bool:
-        """Determine if a Traveler carrying out an event can move to the
-        city."""
-        # Verify that the event is valid
-        if event.category not in [
-                EventCategory.TRAV_HEALTHY, EventCategory.TRAV_INFECTED]:
-            raise ValueError("Only travelers can move.")
-        # For choose events, players can only move to uninfected cities
-        elif event._action == "choose" and self.alerted:
-            return False
-        # For any movement, the event condition must not conflict
-        elif event.condition is not None:
-            return event.condition not in self.state.conditions
-        return True
+    SURVEY_THRESHOLDS: dict[int, int] = {
+        0: 0,
+        1: 1,
+        2: 2,
+        3: 3,
+        4: 5,
+        5: 8,
+        6: 13,
+        7: 21,
+        8: 34,
+        9: 55,
+        10: 89,
+        11: 100,
+    }
+    MAX_INFECTION_STAGE: int = max(SURVEY_THRESHOLDS.keys())
+
+    @staticmethod
+    def survey(current: CityState, advantage: bool) -> bool:
+        """Survey the city for infection."""
+
+        for _ in range(1 + advantage):
+            if randint(1, 100) <= City.SURVEY_THRESHOLDS[
+                current.infection_stage
+            ]:
+                return True
+        return False
+
+    def add_state(self, state: CityState) -> None:
+        self._history.append(state)
