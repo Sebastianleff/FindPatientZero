@@ -50,7 +50,7 @@ class Player:
     _history: list[PlayerState]
     """The history of the player's states."""
 
-    _pending_sus_prompt: bool
+    _sus_prompt_pending: bool
     """Whether the player has a pending Suspicious event prompt."""
 
     _sus_prompt_response: bool | None
@@ -95,19 +95,19 @@ class Player:
         """Update flags indicating that the player has a pending Suspicious
         event prompt."""
 
-        self._pending_sus_prompt = False
+        self._sus_prompt_pending = False
         self._sus_prompt_response = None
 
     def respond_suspicious(self, response: bool) -> None:
         """Set the player's response to the Suspicious event prompt."""
 
         self._sus_prompt_response = response
-        self._pending_sus_prompt = False
+        self._sus_prompt_pending = False
 
     @property
-    def pending_sus_prompt(self) -> bool:
+    def sus_prompt_pending(self) -> bool:
         """Whether the player has a pending Suspicious event prompt."""
-        return self._pending_sus_prompt
+        return self._sus_prompt_pending
 
     @property
     def sus_prompt_response(self) -> bool | None:
@@ -135,7 +135,7 @@ class Player:
 
         elif self.role == PlayerRole.GOVERNOR:
             assert self.city is not None
-            assert self.pending_sus_prompt is False
+            assert self.sus_prompt_pending is False
             if self.city.alerted:
                 category = EventCategory.CITY_EPIDEMIC
             elif self.sus_prompt_response is not None:

@@ -80,24 +80,10 @@ class Game:
     """The current phase of the game."""
 
     _phase_complete: bool = False
-    """Whether the current phase is complete."""
+    """Whether the current game phase is complete."""
 
     _patient_zero: Player
     """The player who is patient zero of the epidemic."""
-
-    @property
-    def players(self) -> list[Player]:
-        """The list of players in the game."""
-        return self._players.copy()
-
-    @property
-    def cities(self) -> list[City]:
-        """The list of cities in the game."""
-        return self._cities.copy()
-
-    @property
-    def patient_zero(self) -> Player:
-        return self._patient_zero
 
     def __init__(self, config: GameConfig, player_names: list[str]):
 
@@ -119,19 +105,59 @@ class Game:
 
         return output
 
-    # TODO Implement phase control
     @property
-    def phase(self) -> GamePhase:
+    def players(self) -> list[Player]:
+        """The list of players in the game."""
+        return self._players.copy()
+
+    @property
+    def cities(self) -> list[City]:
+        """The list of cities in the game."""
+        return self._cities.copy()
+
+    @property
+    def phase_complete(self) -> bool:
+        """Whether the current game phase is complete."""
+        if self._phase == GamePhase.SUS_PROMPTS:
+            for city in self._cities:
+                if city.governor is None:
+                    continue
+                if city.governor.sus_prompt_pending:
+                    return False
+        return self._phase_complete
+
+    # TODO Implement phase control
+    def go_to_next_phase(self) -> bool:
+        """
+        Move the game to the next phase.
+
+        Returns:
+            The next phase of the game, or None if the current phase is not
+            complete.
+        """
         if not self._phase_complete:
-            return self._phase
+            return None
+        
         if self._phase == GamePhase.GAME_START:
-            return GamePhase.ROUND_START
-        elif self._phase == GamePhase.ROUND_START:
-            return GamePhase.SUS_PROMPTS
+            self._phase = GamePhase.ROUND_START
+            return self._phase
+        
+        if self._phase == GamePhase.ROUND_START:
+            self._phase = GamePhase.SUS_PROMPTS
+
+        if self._phase == GamePhase.SUS_PROMPTS:
+            if any(city.can_roll_suspicious(self._round, self.config) for city in self._cities):
+                return self._phase
 
         return GamePhase.ERROR
 
+    @property
+    def patient_zero(self) -> Player:
+        return self._patient_zero
+
     def game_start(self) -> None:
+        """Carry out the setup phase of the game."""
+
         # Pick a random player to be patient zero
         self._patient_zero = random.choice(self._players)
 
@@ -163,7 +189,14 @@ class Game:
         self._phase_complete = True
 
     def round_start(self) -> None:
+        """Carry out the setup phase of a new round."""
+
         self._round += 1
+
+        self._phase_complete = True
+
+    def sus_prompts(self) -> None:
+        """Prompt governors to roll a Suspicious event."""
 
         # Determine which Governors can roll a Suspicious event
         for city in self._cities:
