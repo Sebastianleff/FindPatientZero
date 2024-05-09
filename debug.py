@@ -1,7 +1,7 @@
 """This file should be used to debug the project. It is not intended to be
 used in the final product."""
 
-from src.engine.entities.event import EVENTS
+from findpatientzero.engine.entities.event import EVENTS
 
 if __name__ == "__main__":
     for category, event_list in EVENTS.items():

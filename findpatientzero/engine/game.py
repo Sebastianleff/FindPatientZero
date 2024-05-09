@@ -2,8 +2,8 @@ import random
 from dataclasses import dataclass, replace
 from enum import Enum
 
-from src.engine.entities.city import City, CityState
-from src.engine.entities.player import (
+from findpatientzero.engine.entities.city import City, CityState
+from findpatientzero.engine.entities.player import (
     CPUPlayer,
     InfectionState,
     Player,

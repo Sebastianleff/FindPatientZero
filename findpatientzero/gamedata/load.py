@@ -1,7 +1,7 @@
 import os
 from yaml import safe_load as load
 
-from src.gamedata.schema import (
+from findpatientzero.gamedata.schema import (
     ConditionData,
     ConditionList,
     EventData,

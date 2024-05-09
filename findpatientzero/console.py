@@ -1,4 +1,4 @@
-from src.engine.game import Game
+from findpatientzero.engine.game import Game
 
 
 def main():

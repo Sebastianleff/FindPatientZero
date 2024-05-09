@@ -2,9 +2,9 @@ from dataclasses import dataclass, field
 import random
 from enum import Enum
 
-from src.engine.entities.city import City
-from src.engine.entities.event import EVENTS, Event, EventCategory
-from src.gamedata.load import load_cpu_names
+from findpatientzero.engine.entities.city import City
+from findpatientzero.engine.entities.event import EVENTS, Event, EventCategory
+from findpatientzero.gamedata.load import load_cpu_names
 
 
 class InfectionState(Enum):

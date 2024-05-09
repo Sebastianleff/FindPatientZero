@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from random import randint
 
-from src.engine.entities.event import Event
-from src.gamedata.load import load_city_names
+from findpatientzero.engine.entities.event import Event
+from findpatientzero.gamedata.load import load_city_names
 
 
 @dataclass
