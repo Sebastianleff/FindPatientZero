@@ -1,3 +1,5 @@
+"""Defines the schema for the game data files."""
+
 from typing import Required, NotRequired, TypedDict
 
 

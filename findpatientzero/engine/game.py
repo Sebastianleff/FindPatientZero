@@ -1,3 +1,5 @@
+"""The game module contains the overarching Game class and related classes/functions."""
+
 import random
 from dataclasses import dataclass, replace
 from enum import Enum
@@ -37,6 +39,8 @@ class GameConfig:
 
 @dataclass
 class GameState:
+    """The state of a game at a given point in time."""
+
     round: int
     """The current round number of the game."""
 
@@ -60,6 +64,7 @@ class GamePhase(Enum):
 
 
 class Game:
+    """The main control class for a game of Find Patient Zero."""
 
     config: GameConfig
     """The configuration of the game."""
@@ -86,6 +91,12 @@ class Game:
     """The player who is patient zero of the epidemic."""
 
     def __init__(self, config: GameConfig, player_names: list[str]):
+        """Initialize a new game with the given configuration and player names.
+
+        Args:
+            config: The configuration of the game.
+            player_names: The names of the players in the game.
+        """
 
         self.config = config
         self._players = [Player(name) for name in player_names]
@@ -106,6 +117,15 @@ class Game:
         return output
 
     def get_governor(self, city: City) -> Player | None:
+        """Get the governor of a city, if one exists.
+
+        Args:
+            city: The city to check for a governor.
+
+        Returns:
+            The governor of the city, or None if there is no governor.
+        """
+
         for player in self._players:
             if player.city == city and player.role == PlayerRole.GOVERNOR:
                 return player
@@ -139,8 +159,7 @@ class Game:
         Move the game to the next phase.
 
         Returns:
-            The next phase of the game, or None if the current phase is not
-            complete.
+            True if the game phase was successfully updated, False otherwise.
         """
         if not self._phase_complete:
             return False
@@ -168,6 +187,7 @@ class Game:
 
     @property
     def patient_zero(self) -> Player:
+        """The player who is patient zero of the epidemic."""
         return self._patient_zero
 
     def game_start(self) -> None:
@@ -203,7 +223,6 @@ class Game:
         """Carry out the setup phase of a new round."""
 
         self._round += 1
-
         self._phase_complete = True
 
     def sus_prompts(self) -> None:
@@ -220,7 +239,14 @@ class Game:
         # TODO mark phase as done when all governors have responded
 
     def update_city_state(self, city: City, state: CityState) -> CityState:
-        """Determine the next state of a city."""
+        """Determine the next state of a city.
+        
+        Args:
+            city: The city to update.
+            state: The current state of the city.
+            
+        Returns:
+            The next state of the city."""
 
         # Copy the current state with updated values
         new = replace(
@@ -273,6 +299,7 @@ class Game:
         Determine the next state of a player and the city they are moving to.
 
         Args:
+            player: The player to update.
             current: The current state of the player.
             dest: The city the player is moving to.
             dest_state: The next state of the destination city.
@@ -329,7 +356,7 @@ class Game:
             cities: A dictionary of cities and their states.
 
         Returns:
-            A tuple containing the updated states of the players and cities.
+            A pair of dictionaries containing the updated states of the players and cities.
         """
         open_cities = list(cities.keys())
         for player in self._players:

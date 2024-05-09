@@ -1,3 +1,5 @@
+"""Load game data from YAML files."""
+
 import os
 from yaml import safe_load as load
 

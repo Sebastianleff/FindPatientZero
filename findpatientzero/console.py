@@ -1,3 +1,5 @@
+"""Console-based interface for the game."""
+
 from findpatientzero.engine.game import Game
 
 

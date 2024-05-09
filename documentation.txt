@@ -1,0 +1,253 @@
+findpatientzero.engine (module):
+   __annotations__ (dict): {}
+   findpatientzero.engine.entities (module):
+      __annotations__ (dict): {}
+      findpatientzero.engine.entities.city (module):
+         [Dependencies: random, findpatientzero.engine.entities.event, findpatientzero.gamedata.load, dataclasses]
+         __annotations__ (dict): {}
+         City (type):
+            __annotations__ (dict): {
+                                       names: list[str],
+                                       _name: <class 'str'>,
+                                       _history: list[findpatientzero.engine.entities.city.CityState],
+                                       SURVEY_THRESHOLDS: dict[int, int],
+                                       MAX_INFECTION_STAGE: <class 'int'>,
+                                    }
+            __module__ (str): findpatientzero.engine.entities.city
+            __type_params__ (tuple)
+            MAX_INFECTION_STAGE (int): 11
+            SURVEY_THRESHOLDS (dict): {
+                                         0: 0,
+                                         1: 1,
+                                         2: 2,
+                                         3: 3,
+                                         4: 5,
+                                         5: 8,
+                                         6: 13,
+                                         7: 21,
+                                         8: 34,
+                                         9: 55,
+                                         10: 89,
+                                         11: 100,
+                                      }
+            alerted (property): bool
+            conditions (property): list[str]
+            in_lockdown (property): bool
+            infection_stage (property): int
+            name (property): str
+            names (list)
+            state (property): findpatientzero.engine.entities.city.CityState
+         CityState (type):
+            __annotations__ (dict): {
+                                       infection_stage: <class 'int'>,
+                                       last_sus_roll: int | None,
+                                       alerted: <class 'bool'>,
+                                       lockdown: <class 'int'>,
+                                       infection_pause: <class 'int'>,
+                                       conditions: list[str],
+                                       event: <class 'findpatientzero.engine.entities.event.Event'>,
+                                    }
+            __module__ (str): findpatientzero.engine.entities.city
+            __type_params__ (tuple)
+            alerted (bool)
+            infection_pause (int)
+            infection_stage (int)
+            lockdown (int)
+      findpatientzero.engine.entities.event (module):
+         [Dependencies: enum, findpatientzero.gamedata.load, dataclasses]
+         __annotations__ (dict): {}
+         Event (type):
+            __annotations__ (dict): {
+                                       category: <enum 'EventCategory'>,
+                                       description: <class 'str'>,
+                                       action: <class 'str'>,
+                                       amount: <class 'int'>,
+                                       condition: str | None,
+                                    }
+            __module__ (str): findpatientzero.engine.entities.event
+            __type_params__ (tuple)
+            action (str): none
+            amount (int)
+            category (EventCategory)
+            description (str): No event
+         EventCategory (EnumType):
+            TRAV_HEALTHY: Healthy
+            TRAV_INFECTED: Infected
+            CITY_SUSPICIOUS: Suspicious
+            CITY_EPIDEMIC: Epidemic
+            NONE: None
+      findpatientzero.engine.entities.player (module):
+         [Dependencies: dataclasses, findpatientzero.engine.entities.event, findpatientzero.engine.entities.city, enum, random, findpatientzero.gamedata.load]
+         __annotations__ (dict): {}
+         CPUPlayer (type):
+            __annotations__ (dict): {
+                                       names: list[str],
+                                    }
+            __module__ (str): findpatientzero.engine.entities.player
+            __type_params__ (tuple)
+            city (property): findpatientzero.engine.entities.city.City | None
+            city_prompt_response (property): findpatientzero.engine.entities.city.City | None
+            health (property): InfectionState
+            last_event (property): findpatientzero.engine.entities.event.Event
+            name (property): str
+            names (list)
+            next_event (property): findpatientzero.engine.entities.event.Event
+            next_event_category (property): EventCategory
+            pending_city_prompt (property): bool
+            role (property): PlayerRole
+            state (property): findpatientzero.engine.entities.player.PlayerState
+            sus_prompt_pending (property): bool
+            sus_prompt_response (property): bool | None
+         InfectionState (EnumType):
+            HEALTHY: Healthy
+            ASYMPTOMATIC: Asymptomatic
+            SYMPTOMATIC: Symptomatic
+            IMMUNE: Immune
+            DEAD: Dead
+         Player (type):
+            __annotations__ (dict): {
+                                       _name: <class 'str'>,
+                                       _history: list[findpatientzero.engine.entities.player.PlayerState],
+                                       _sus_prompt_pending: <class 'bool'>,
+                                       _sus_prompt_response: bool | None,
+                                       _next_event: findpatientzero.engine.entities.event.Event | None,
+                                       _pending_city_prompt: <class 'bool'>,
+                                       _city_prompt_response: findpatientzero.engine.entities.city.City | None,
+                                    }
+            __module__ (str): findpatientzero.engine.entities.player
+            __type_params__ (tuple)
+            city (property): findpatientzero.engine.entities.city.City | None
+            city_prompt_response (property): findpatientzero.engine.entities.city.City | None
+            health (property): InfectionState
+            last_event (property): findpatientzero.engine.entities.event.Event
+            name (property): str
+            next_event (property): findpatientzero.engine.entities.event.Event
+            next_event_category (property): EventCategory
+            pending_city_prompt (property): bool
+            role (property): PlayerRole
+            state (property): findpatientzero.engine.entities.player.PlayerState
+            sus_prompt_pending (property): bool
+            sus_prompt_response (property): bool | None
+         PlayerRole (EnumType):
+            TRAVELER: Traveler
+            GOVERNOR: Governor
+            OBSERVER: Observer
+         PlayerState (type):
+            __annotations__ (dict): {
+                                       health: <enum 'InfectionState'>,
+                                       infected_round: int | None,
+                                       role: <enum 'PlayerRole'>,
+                                       city: findpatientzero.engine.entities.city.City | None,
+                                       event: <class 'findpatientzero.engine.entities.event.Event'>,
+                                    }
+            __module__ (str): findpatientzero.engine.entities.player
+            __type_params__ (tuple)
+            health (InfectionState)
+            role (PlayerRole)
+   findpatientzero.engine.game (module):
+      [Dependencies: dataclasses, findpatientzero.engine.entities.city, findpatientzero.engine.entities.player, enum, random]
+      __annotations__ (dict): {}
+      Game (type):
+         __annotations__ (dict): {
+                                    config: <class 'findpatientzero.engine.game.GameConfig'>,
+                                    _players: list[findpatientzero.engine.entities.player.Player],
+                                    _cities: list[findpatientzero.engine.entities.city.City],
+                                    _history: list[findpatientzero.engine.game.GameState],
+                                    _round: <class 'int'>,
+                                    _phase: <enum 'GamePhase'>,
+                                    _phase_complete: <class 'bool'>,
+                                    _patient_zero: <class 'findpatientzero.engine.entities.player.Player'>,
+                                 }
+         __module__ (str): findpatientzero.engine.game
+         __type_params__ (tuple)
+         cities (property): list[findpatientzero.engine.entities.city.City]
+         patient_zero (property): findpatientzero.engine.entities.player.Player
+         phase_complete (property): bool
+         players (property): list[findpatientzero.engine.entities.player.Player]
+      GameConfig (type):
+         __annotations__ (dict): {
+                                    num_players: <class 'int'>,
+                                    num_cities: <class 'int'>,
+                                    suspicious_cooldown: <class 'int'>,
+                                    lockdown_duration: <class 'int'>,
+                                 }
+         __module__ (str): findpatientzero.engine.game
+         __type_params__ (tuple)
+         lockdown_duration (int): 2
+         suspicious_cooldown (int): 3
+      GamePhase (EnumType):
+         GAME_START: Starting a new game
+         ROUND_START: Starting a new round
+         SUS_PROMPTS: Governors deciding whether to roll a Suspicious event
+         ROLL_EVENTS: Rolling events
+         CITY_PROMPTS: Prompting players to choose cities
+         RESOLVE_MOVES: Resolving moves
+         ERROR: An error occurred
+      GameState (type):
+         __annotations__ (dict): {
+                                    round: <class 'int'>,
+                                    players: dict[findpatientzero.engine.entities.player.Player, findpatientzero.engine.entities.player.PlayerState],
+                                    cities: dict[findpatientzero.engine.entities.city.City, findpatientzero.engine.entities.city.CityState],
+                                 }
+         __module__ (str): findpatientzero.engine.game
+         __type_params__ (tuple)
+findpatientzero.gamedata (module):
+   __annotations__ (dict): {}
+   findpatientzero.gamedata.load (module):
+      [Dependencies: yaml, os]
+      __annotations__ (dict): {}
+      ConditionData (_TypedDictMeta)
+      ConditionList (_TypedDictMeta)
+      EventData (_TypedDictMeta)
+      EventList (_TypedDictMeta)
+      EventTypeData (_TypedDictMeta)
+      EventTypeList (_TypedDictMeta)
+      load_city_names (function):
+         __annotations__ (dict): {
+                                    return: list[str],
+                                 }
+         __module__ (str): findpatientzero.gamedata.load
+         __type_params__ (tuple)
+      load_conditions (function):
+         __annotations__ (dict): {
+                                    key: <class 'str'>,
+                                    return: list[findpatientzero.gamedata.schema.ConditionData],
+                                 }
+         __module__ (str): findpatientzero.gamedata.load
+         __type_params__ (tuple)
+      load_cpu_names (function):
+         __annotations__ (dict): {
+                                    return: list[str],
+                                 }
+         __module__ (str): findpatientzero.gamedata.load
+         __type_params__ (tuple)
+      load_event_types (function):
+         __annotations__ (dict): {
+                                    key: <class 'str'>,
+                                    return: list[findpatientzero.gamedata.schema.EventTypeData],
+                                 }
+         __module__ (str): findpatientzero.gamedata.load
+         __type_params__ (tuple)
+      load_events (function):
+         __annotations__ (dict): {
+                                    key: <class 'str'>,
+                                    return: list[findpatientzero.gamedata.schema.EventData],
+                                 }
+         __module__ (str): findpatientzero.gamedata.load
+         __type_params__ (tuple)
+   findpatientzero.gamedata.schema (module):
+      [Dependencies: typing]
+      __annotations__ (dict): {}
+      ConditionData (_TypedDictMeta)
+      ConditionList (_TypedDictMeta)
+      EventData (_TypedDictMeta)
+      EventList (_TypedDictMeta)
+      EventTypeData (_TypedDictMeta)
+      EventTypeList (_TypedDictMeta)
+findpatientzero.console (module):
+   [Dependencies: findpatientzero.engine.game]
+   __annotations__ (dict): {}
+   main (function):
+      __annotations__ (dict): {}
+      __module__ (str): findpatientzero.console
+      __type_params__ (tuple)
