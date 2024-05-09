@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from gamedata.load import load_conditions, load_event_types, load_events
+from src.gamedata.load import load_conditions, load_event_types, load_events
 
 
 class EventCategory(Enum):

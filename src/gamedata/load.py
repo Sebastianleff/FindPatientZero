@@ -1,7 +1,7 @@
 import os
 from yaml import safe_load as load
 
-from gamedata.schema import (
+from src.gamedata.schema import (
     ConditionData,
     ConditionList,
     EventData,
