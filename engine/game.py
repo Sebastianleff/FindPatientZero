@@ -105,6 +105,12 @@ class Game:
 
         return output
 
+    def get_governor(self, city: City) -> Player | None:
+        for player in self._players:
+            if player.city == city and player.role == PlayerRole.GOVERNOR:
+                return player
+        return None
+
     @property
     def players(self) -> list[Player]:
         """The list of players in the game."""
@@ -120,9 +126,10 @@ class Game:
         """Whether the current game phase is complete."""
         if self._phase == GamePhase.SUS_PROMPTS:
             for city in self._cities:
-                if city.governor is None:
+                governor = self.get_governor(city)
+                if governor is None:
                     continue
-                if city.governor.sus_prompt_pending:
+                if governor.sus_prompt_pending:
                     return False
         return self._phase_complete
 
@@ -136,20 +143,28 @@ class Game:
             complete.
         """
         if not self._phase_complete:
-            return None
-        
+            return False
+
         if self._phase == GamePhase.GAME_START:
             self._phase = GamePhase.ROUND_START
-            return self._phase
-        
+            self._phase_complete = False
+            return True
+
         if self._phase == GamePhase.ROUND_START:
             self._phase = GamePhase.SUS_PROMPTS
+            self._phase_complete = False
+            return True
 
         if self._phase == GamePhase.SUS_PROMPTS:
-            if any(city.can_roll_suspicious(self._round, self.config) for city in self._cities):
-                return self._phase
+            if any(city.can_roll_suspicious(
+                self._round, self.config.suspicious_cooldown
+            ) for city in self._cities):
+                self._phase = GamePhase.ROLL_EVENTS
+                self._phase_complete = False
+                return True
 
-        return GamePhase.ERROR
+        self._phase = GamePhase.ERROR
+        return False
 
     @property
     def patient_zero(self) -> Player:
@@ -171,11 +186,7 @@ class Game:
 
         # Initialize city states
         for city in self._cities:
-            city.add_state(CityState(
-                travelers=[
-                    player for player in self._players if player.city == city
-                ]
-            ))
+            city.add_state(CityState())
 
         # Commit initial states to history
         self._history.append(
@@ -200,42 +211,46 @@ class Game:
 
         # Determine which Governors can roll a Suspicious event
         for city in self._cities:
-            if city.can_roll_suspicious(self._round, self.config):
-                assert city.governor is not None
-                city.governor.prompt_suspicious()
+            if city.can_roll_suspicious(
+                self._round, self.config.suspicious_cooldown
+            ):
+                governor = self.get_governor(city)
+                assert governor is not None
+                governor.prompt_suspicious()
         # TODO mark phase as done when all governors have responded
 
-    def update_city_state(self, current: CityState) -> CityState:
+    def update_city_state(self, city: City, state: CityState) -> CityState:
         """Determine the next state of a city."""
 
         # Copy the current state with updated values
         new = replace(
-            current,
-            conditions=(current.conditions.copy()
-                        if current.lockdown > 0
+            state,
+            conditions=(state.conditions.copy()
+                        if state.lockdown > 0
                         else list()),
-            infection_pause=max(0, current.infection_pause - 1),
-            lockdown=max(0, current.lockdown - 1),
+            infection_pause=max(0, state.infection_pause - 1),
+            lockdown=max(0, state.lockdown - 1),
             infection_stage=(
-                min(current.infection_stage + 1, City.MAX_INFECTION_STAGE)
-                if current.infection_stage > 0 and current.infection_pause == 0
+                min(state.infection_stage + 1, City.MAX_INFECTION_STAGE)
+                if state.infection_stage > 0 and state.infection_pause == 0
                 else 0
             ),
         )
 
         # Resolve event if there is a governor
-        if current.governor is not None:
+        governor = self.get_governor(city)
+        if governor is not None:
             # Actions
-            event = current.governor.next_event
+            event = governor.next_event
             if event.action == "pause":
                 new.infection_pause = event.amount
             elif event.action.startswith("survey"):
                 new.alerted = City.survey(
-                    current, event.action.endswith("adv")
+                    state, event.action.endswith("adv")
                 )
             elif event.action == "rollback":
                 new.infection_stage = max(
-                    0, current.infection_stage - event.amount
+                    0, state.infection_stage - event.amount
                 )
 
             # Conditions
@@ -316,9 +331,12 @@ class Game:
         Returns:
             A tuple containing the updated states of the players and cities.
         """
-        open_cities = [
-            city for city, state in cities.items() if state.governor is None
-        ]
+        open_cities = list(cities.keys())
+        for player in self._players:
+            if player.role == PlayerRole.GOVERNOR:
+                assert player.city is not None
+                open_cities.remove(player.city)
+
         for player, state in dead_plyrs.items():
             if len(open_cities) == 0:
                 state.role = PlayerRole.OBSERVER
@@ -326,11 +344,9 @@ class Game:
                 continue
             state.role = PlayerRole.GOVERNOR
             if state.city in open_cities:
-                state.city.governor = player
                 open_cities.remove(state.city)
             else:
                 state.city = open_cities.pop()
-                state.city.governor = player
 
         return (dead_plyrs, cities)
 
@@ -341,7 +357,9 @@ class Game:
 
         # Update city states
         new_city_states = {
-            city: self.update_city_state(city.state) for city in self._cities
+            city: self.update_city_state(
+                city, city.state
+            ) for city in self._cities
         }
 
         # Update player states

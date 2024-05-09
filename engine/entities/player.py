@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import random
 from enum import Enum
 
@@ -39,7 +39,7 @@ class PlayerState:
     city: City | None = None
     """The city the player is currently in."""
 
-    event: Event = Event()
+    event: Event = field(default_factory=Event)
     """The event that the player resolved this round."""
 
 

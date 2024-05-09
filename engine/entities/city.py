@@ -2,8 +2,6 @@ from dataclasses import dataclass, field
 from random import randint
 
 from engine.entities.event import Event
-from engine.entities.player import Player
-from engine.game import GameConfig
 from gamedata.load import load_city_names
 
 
@@ -14,12 +12,6 @@ class CityState:
 
     last_sus_roll: int | None = None
     """The last time a Suspicious event was rolled for this city."""
-
-    governor: Player | None = None
-    """The player who is currently the governor of the city."""
-
-    travelers: list[Player] = field(default_factory=list)
-    """The list of travelers currently in the city."""
 
     alerted: bool = False
     """Whether the city has been alerted to an epidemic."""
@@ -33,7 +25,7 @@ class CityState:
     conditions: list[str] = field(default_factory=list)
     """The conditions currently affecting the city."""
 
-    event: Event = Event()
+    event: Event = field(default_factory=Event)
     """The event that the city resolved this round."""
 
 
@@ -47,9 +39,6 @@ class City:
     _history: list[CityState]
     """The history of the city's states."""
 
-    governor: Player | None
-    """The player who is currently the governor of the city."""
-
     @property
     def in_lockdown(self) -> bool:
         return self.state.lockdown > 0
@@ -62,11 +51,8 @@ class City:
         index = randint(0, len(City.names) - 1)
         self._name = City.names.pop(index)
         self._history = [CityState()]
-        self.governor = None
 
     def __str__(self) -> str:
-        if self.governor is not None:
-            return f"{self.name} (Governor: {self.governor})"
         return self.name
 
     @property
@@ -85,16 +71,18 @@ class City:
     def infection_stage(self) -> int:
         return self.state.infection_stage
 
-    def can_roll_suspicious(self, round: int, config: GameConfig) -> bool:
+    def can_roll_suspicious(
+        self,
+        round: int,
+        suspicious_cooldown: int,
+    ) -> bool:
         """Determine if the city can roll a Suspicious event."""
 
         if self.alerted:
             return False
-        if self.governor is None:
-            return False
         if self.state.last_sus_roll is not None:
             return (
-                round - self.state.last_sus_roll >= config.suspicious_cooldown
+                round - self.state.last_sus_roll >= suspicious_cooldown
             )
         return True
 
