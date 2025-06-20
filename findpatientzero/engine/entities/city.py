@@ -45,6 +45,25 @@ class City:
     _history: list[CityState]
     """The history of the city's states."""
 
+    SURVEY_THRESHOLDS: dict[int, int] = {
+        0: 0,
+        1: 1,
+        2: 2,
+        3: 3,
+        4: 5,
+        5: 8,
+        6: 13,
+        7: 21,
+        8: 34,
+        9: 55,
+        10: 89,
+        11: 100,
+    }
+    """The thresholds for whether a d100 roll will detect infection in the city at each stage of infection."""
+
+    MAX_INFECTION_STAGE: int = max(SURVEY_THRESHOLDS.keys())
+    """The maximum infection stage."""
+
     @property
     def in_lockdown(self) -> bool:
         """Whether the city is in lockdown."""
@@ -89,13 +108,13 @@ class City:
 
     def can_roll_suspicious(
         self,
-        round: int,
+        game_round: int,
         suspicious_cooldown: int,
     ) -> bool:
         """Determine if the city can roll a Suspicious event.
 
         Args:
-            round: The current round.
+            game_round: The current round.
             suspicious_cooldown: The number of rounds to wait between rolls (from the game configuration).
 
         Returns:
@@ -108,29 +127,10 @@ class City:
 
         if self.state.last_sus_roll is not None:
             return (
-                round - self.state.last_sus_roll >= suspicious_cooldown
+                game_round - self.state.last_sus_roll >= suspicious_cooldown
             )
 
         return True
-
-    SURVEY_THRESHOLDS: dict[int, int] = {
-        0: 0,
-        1: 1,
-        2: 2,
-        3: 3,
-        4: 5,
-        5: 8,
-        6: 13,
-        7: 21,
-        8: 34,
-        9: 55,
-        10: 89,
-        11: 100,
-    }
-    """The thresholds for whether a d100 roll will detect infection in the city at each stage of infection."""
-
-    MAX_INFECTION_STAGE: int = max(SURVEY_THRESHOLDS.keys())
-    """The maximum infection stage."""
 
     @staticmethod
     def survey(current: CityState, advantage: bool) -> bool:

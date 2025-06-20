@@ -106,7 +106,8 @@ class Game:
         self._cities = [City() for _ in range(config.num_cities)]
 
     def __str__(self) -> str:
-        output = "PLAYERS"
+        output = "ROUND: " + str(self._round)
+        output += "\n\nPLAYERS"
         for i, player in enumerate(self._players):
             output += f"\n\tPlayer {i+1}: {player}"
         output += "\n\nCITIES"
@@ -140,6 +141,16 @@ class Game:
     def cities(self) -> list[City]:
         """The list of cities in the game."""
         return self._cities.copy()
+
+    @property
+    def patient_zero(self) -> Player:
+        """The player who is patient zero of the epidemic."""
+        return self._patient_zero
+
+    @property
+    def round(self) -> int:
+        """The current round number of the game."""
+        return self._round
 
     @property
     def phase_complete(self) -> bool:
@@ -184,11 +195,6 @@ class Game:
 
         self._phase = GamePhase.ERROR
         return False
-
-    @property
-    def patient_zero(self) -> Player:
-        """The player who is patient zero of the epidemic."""
-        return self._patient_zero
 
     def game_start(self) -> None:
         """Carry out the setup phase of the game."""
@@ -237,6 +243,7 @@ class Game:
                 assert governor is not None
                 governor.prompt_suspicious()
         # TODO mark phase as done when all governors have responded
+
 
     def update_city_state(self, city: City, state: CityState) -> CityState:
         """Determine the next state of a city.
@@ -291,7 +298,7 @@ class Game:
     def update_player_state(
                 self,
                 player: Player,
-                current: PlayerState,
+                current_player: PlayerState,
                 dest: City,
                 dest_state: CityState,
             ) -> tuple[PlayerState, CityState]:
@@ -300,7 +307,7 @@ class Game:
 
         Args:
             player: The player to update.
-            current: The current state of the player.
+            current_player: The current state of the player.
             dest: The city the player is moving to.
             dest_state: The next state of the destination city.
 
@@ -308,27 +315,27 @@ class Game:
             A tuple containing the next state of the player and the city.
         """
 
-        # Copy the current state with updated values
-        new = replace(current, city=dest)
+        # Copy the current player state with updated values
+        new = replace(current_player, city=dest)
 
         # Resolve traveler move
-        if current.role == PlayerRole.TRAVELER:
+        if current_player.role == PlayerRole.TRAVELER:
             # Move to the next city
             assert new.city is not None
             # Update health status
             if (
-                current.health == InfectionState.HEALTHY
+                current_player.health == InfectionState.HEALTHY
                 and dest.infection_stage > 0
             ):
                 new.health = InfectionState.ASYMPTOMATIC
                 new.infected_round = self._round
-            elif current.health != InfectionState.IMMUNE:
-                assert current.infected_round is not None
+            elif current_player.health != InfectionState.IMMUNE:
+                assert current_player.infected_round is not None
                 roll = random.randint(1, 100)
-                if self._round - current.infected_round <= 4:
+                if self._round - current_player.infected_round <= 4:
                     if roll > 50:
                         dest_state.infection_stage += 1
-                elif self._round - current.infected_round <= 9:
+                elif self._round - current_player.infected_round <= 9:
                     dest_state.infection_stage += 1
                     if 40 < roll <= 87:
                         new.health = InfectionState.SYMPTOMATIC
@@ -341,7 +348,7 @@ class Game:
                     else:
                         new.health = InfectionState.DEAD
 
-        return (new, dest_state)
+        return new, dest_state
 
     def reassign_players(
                 self,
@@ -375,7 +382,7 @@ class Game:
             else:
                 state.city = open_cities.pop()
 
-        return (dead_plyrs, cities)
+        return dead_plyrs, cities
 
     def resolve_moves(self) -> None:
         """

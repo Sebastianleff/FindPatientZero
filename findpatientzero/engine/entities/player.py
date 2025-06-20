@@ -86,13 +86,14 @@ class Player:
     """The player's response to the city choice prompt."""
 
     def __init__(self, name: str) -> None:
-        """Initialize a player with a name.
+        """Initialize a player.
 
         Args:
             name (str): The name of the player.
         """
 
         self._name = name
+        self._history = [PlayerState()]
 
     def __str__(self) -> str:
         return self._name
@@ -126,7 +127,7 @@ class Player:
         """Update flags indicating that the player has a pending Suspicious
         event prompt."""
 
-        self._sus_prompt_pending = False
+        self._sus_prompt_pending = True
         self._sus_prompt_response = None
 
     def respond_suspicious(self, response: bool) -> None:

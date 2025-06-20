@@ -63,7 +63,7 @@ events:
   frequency: 2
   condition: merch
 
-# Move to uninfected city of choice (10%)
+# Move to the uninfected city of choice (10%)
 - description: 'You hear rumblings of an infection in the city:'
   action: choose
   frequency: 1
