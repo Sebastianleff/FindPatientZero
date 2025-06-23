@@ -60,8 +60,7 @@ class Event:
 
     def __post_init__(self) -> None:
         if self.category != EventCategory.NONE:
-            assert self.description != "No event", \
-                "Event description is missing"
+            assert self.description != "No event", "Event description is missing"
             assert self.action != "none", "Event action is missing"
 
     def __str__(self) -> str:

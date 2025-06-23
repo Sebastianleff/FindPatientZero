@@ -244,7 +244,6 @@ class Game:
                 governor.prompt_suspicious()
         # TODO mark phase as done when all governors have responded
 
-
     def update_city_state(self, city: City, state: CityState) -> CityState:
         """Determine the next state of a city.
         
@@ -352,14 +351,14 @@ class Game:
 
     def reassign_players(
                 self,
-                dead_plyrs: dict[Player, PlayerState],
+                dead_players: dict[Player, PlayerState],
                 cities: dict[City, CityState],
             ) -> tuple[dict[Player, PlayerState], dict[City, CityState]]:
         """
         Reassign newly dead players to a new role.
 
         Args:
-            dead_plyrs: A dictionary of dead players and their states.
+            dead_players: A dictionary of dead players and their states.
             cities: A dictionary of cities and their states.
 
         Returns:
@@ -371,7 +370,7 @@ class Game:
                 assert player.city is not None
                 open_cities.remove(player.city)
 
-        for player, state in dead_plyrs.items():
+        for player, state in dead_players.items():
             if len(open_cities) == 0:
                 state.role = PlayerRole.OBSERVER
                 state.city = None
@@ -382,7 +381,7 @@ class Game:
             else:
                 state.city = open_cities.pop()
 
-        return dead_plyrs, cities
+        return dead_players, cities
 
     def resolve_moves(self) -> None:
         """
