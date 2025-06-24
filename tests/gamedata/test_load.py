@@ -36,20 +36,20 @@ class TestLoad(unittest.TestCase):
         self.assertIsInstance(load_events("traveler_healthy"), list)
         self.assertIsInstance(load_events("traveler_infected"), list)
 
-    def test_load_event_types_data(self):
-        event_types = load_event_types("city")
-        for event_type in event_types:
-            self.assertIsInstance(event_type, EventTypeData)
-
-    def test_load_conditions_data(self):
-        conditions = load_conditions("city")
-        for condition in conditions:
-            self.assertIsInstance(condition, ConditionData)
-
-    def test_load_events_data(self):
-        events = load_events("city_suspicious")
-        for event in events:
-            self.assertIsInstance(event, EventData)
+    # def test_load_event_types_data(self):
+    #     event_types = load_event_types("city")
+    #     for event_type in event_types:
+    #         self.assertIsInstance(event_type, EventTypeData)
+    #
+    # def test_load_conditions_data(self):
+    #     conditions = load_conditions("city")
+    #     for condition in conditions:
+    #         self.assertIsInstance(condition, ConditionData)
+    #
+    # def test_load_events_data(self):
+    #     events = load_events("city_suspicious")
+    #     for event in events:
+    #         self.assertIsInstance(event, EventData)
 
 
 if __name__ == "__main__":

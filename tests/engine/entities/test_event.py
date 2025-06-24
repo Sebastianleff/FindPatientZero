@@ -8,7 +8,7 @@ class TestEvent(unittest.TestCase):
     def setUp(self):
         self.event = Event()
 
-    def test_event_load(self):
+    def test_event(self):
         """Test that the Event class can be instantiated."""
         self.assertIsInstance(self.event, Event)
 

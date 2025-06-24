@@ -94,6 +94,7 @@ class Player:
 
         self._name = name
         self._history = [PlayerState()]
+        self._next_event = None
 
     def __str__(self) -> str:
         return self._name
@@ -233,7 +234,6 @@ class Player:
             return False
 
         # For any movement, the event condition must not conflict
-        # TODO: Conditions should be checked in the event resolution
         elif self.next_event.condition is not None:
             return self.next_event.condition not in (
                 self.city.conditions + dest.conditions
@@ -261,7 +261,7 @@ class Player:
         
         # If the player has a choose event, they can only move to uninfected cities
         elif self.next_event.action == "choose":
-            options = [city for city in cities if not self.can_move(city)]
+            options = [city for city in cities if self.can_move(city)]
             if len(options) > 0:
                 return options
 
@@ -292,8 +292,8 @@ class Player:
 
         """
 
-        self._city_prompt_response = city
         self._pending_city_prompt = False
+        self._city_prompt_response = city
 
     @property
     def pending_city_prompt(self) -> bool:
@@ -312,6 +312,7 @@ class Player:
             state (PlayerState): The state to add.
         """
         self._history.append(state)
+        self._next_event = None
 
 
 class CPUPlayer(Player):
