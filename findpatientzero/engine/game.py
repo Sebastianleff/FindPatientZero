@@ -2,9 +2,10 @@
 
 import random
 from dataclasses import dataclass, replace
-from enum import Enum
+from enum import Enum, nonmember
 
 from findpatientzero.engine.entities.city import City, CityState
+from findpatientzero.engine.entities.event import Event
 from findpatientzero.engine.entities.player import (
     CPUPlayer,
     InfectionState,
@@ -84,8 +85,8 @@ class Game:
     _phase: GamePhase = GamePhase.GAME_START
     """The current phase of the game."""
 
-    _phase_complete: bool = False
-    """Whether the current game phase is complete."""
+    _prompts_pending: bool = False
+    """If any players have pending prompts"""
 
     _patient_zero: Player
     """The player who is patient zero of the epidemic."""
@@ -183,96 +184,124 @@ class Game:
         return self._round
 
     @property
+    def phase(self) -> GamePhase:
+        """The current phase of the game."""
+        return self._phase
+
+    @property
+    def prompts_pending(self) -> bool:
+        """If any player prompts are pending"""
+        return self._prompts_pending
+
+    @property
     def phase_complete(self) -> bool:
         """Whether the current game phase is complete."""
-        if self._phase == GamePhase.SUS_PROMPTS:
-            for city in self._cities:
-                governor = self.get_governor(city)
-                if governor is None:
-                    continue
-                if governor.sus_prompt_pending:
-                    return False
-        return self._phase_complete
 
-    # TODO Implement phase control
+        if self._phase == GamePhase.GAME_START:
+            return all([self._round == 0, self.patient_zero is not None, (len(self._history) != 0)])
+
+        if self._phase == GamePhase.ROUND_START:
+            return self._round == self._history[-1].round+1
+
+        if self._phase == GamePhase.SUS_PROMPTS:
+            return all(
+                not player.sus_prompt_pending
+                for player in self._players
+                if player.role == PlayerRole.GOVERNOR
+            )
+
+        if self._phase == GamePhase.ROLL_EVENTS:
+            return all(
+                player
+                for player in self._players
+                if player.next_event is not None
+            )
+
+        if self._phase == GamePhase.CITY_PROMPTS:
+            return all(
+                (not player.pending_city_prompt)
+                for player in self._players
+                if player.role == PlayerRole.TRAVELER
+            )
+
+        if self._phase == GamePhase.RESOLVE_MOVES:
+            return True #TODO add check logic for resolve moves phase
+
+        return False
+
     def go_to_next_phase(self) -> bool:
         """
         Move the game to the next phase.
 
         Returns:
-            True if the game phase was successfully updated, False otherwise.
+            True if the game phase was successfully executed, False otherwise.
         """
-        if not self._phase_complete:
-            return False
+        if not self.phase_complete:
+            raise RuntimeError("Cannot advance phase: current phase is not complete.")
 
         if self._phase == GamePhase.GAME_START:
             self._phase = GamePhase.ROUND_START
-            self._phase_complete = False
-            return True
+            self.round_start()
 
-        if self._phase == GamePhase.ROUND_START:
+        elif self._phase == GamePhase.ROUND_START:
             self._phase = GamePhase.SUS_PROMPTS
-            self._phase_complete = False
-            return True
+            self.sus_prompts()
 
-        if self._phase == GamePhase.SUS_PROMPTS:
-            if any(city.can_roll_suspicious(
-                self._round, self.config.suspicious_cooldown
-            ) for city in self._cities):
-                self._phase = GamePhase.ROLL_EVENTS
-                self._phase_complete = False
-                return True
+        elif self._phase == GamePhase.SUS_PROMPTS:
+            self._prompts_pending = False
+            self._phase = GamePhase.ROLL_EVENTS
+            self.roll_events()
 
-        self._phase = GamePhase.ERROR
-        return False
+        elif self._phase == GamePhase.ROLL_EVENTS:
+            self._phase = GamePhase.CITY_PROMPTS
+            self.city_prompts()
 
-    def game_start(self) -> None:
-        """Carry out the setup phase of the game."""
+        elif self._phase == GamePhase.CITY_PROMPTS:
+            self._prompts_pending = False
+            self._phase = GamePhase.RESOLVE_MOVES
+            self.resolve_moves()
 
-        # Pick a random player to be patient zero
-        self._patient_zero = random.choice(self._players)
+        elif self._phase == GamePhase.RESOLVE_MOVES:
+            self._phase = GamePhase.ROUND_START
+            self.round_start()
 
-        # Initialize player states
-        city_choices = list()
-        for player in self._players:
-            if len(city_choices) == 0:
-                city_choices = random.sample(self._cities, len(self._cities))
-            city = city_choices.pop()
-            player.add_state(PlayerState(city=city))
+        else:
+            self._phase = GamePhase.ERROR
+            return False
 
-        # Initialize city states
-        for city in self._cities:
-            city.add_state(CityState())
-
-        # Commit initial states to history
-        self._history.append(
-            GameState(
-                round=self._round,
-                players={player: player.state for player in self._players},
-                cities={city: city.state for city in self._cities},
-            )
-        )
-
-        self._phase_complete = True
+        return True
 
     def round_start(self) -> None:
         """Carry out the setup phase of a new round."""
 
         self._round += 1
-        self._phase_complete = True
 
     def sus_prompts(self) -> None:
         """Prompt governors to roll a Suspicious event."""
 
-        # Determine which Governors can roll a Suspicious event
         for city in self._cities:
             if city.can_roll_suspicious(
                 self._round, self.config.suspicious_cooldown
             ):
                 governor = self.get_governor(city)
-                assert governor is not None
-                governor.prompt_suspicious()
-        # TODO mark phase as done when all governors have responded
+                if governor is not None:
+                    self._prompts_pending = True
+                    governor.prompt_suspicious()
+
+    def roll_events(self) -> None:
+        """Roll events for all players."""
+
+        for player in self._players:
+            if not player.role == PlayerRole.OBSERVER:
+                _ = player.next_event
+
+    def city_prompts(self) -> None:
+        """Prompt players to chose what city to move to."""
+
+        for player in self._players:
+            if player.next_event_choice and not player.role == PlayerRole.OBSERVER:
+                self._prompts_pending = True
+                player.prompt_city_choice()
 
     def update_city_state(self, city: City, state: CityState) -> CityState:
         """Determine the next state of a city.
@@ -326,7 +355,6 @@ class Game:
 
     def update_player_state(
                 self,
-                player: Player,
                 current_player: PlayerState,
                 dest: City,
                 dest_state: CityState,
@@ -335,7 +363,6 @@ class Game:
         Determine the next state of a player and the city they are moving to.
 
         Args:
-            player: The player to update.
             current_player: The current state of the player.
             dest: The city the player is moving to.
             dest_state: The next state of the destination city.
