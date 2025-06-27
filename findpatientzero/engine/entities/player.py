@@ -67,22 +67,22 @@ class Player:
     _name: str
     """The name of the player."""
 
-    _history: list[PlayerState]
+    _history: list[PlayerState] = [PlayerState()]
     """The history of the player's states."""
 
-    _sus_prompt_pending: bool
+    _sus_prompt_pending: bool = False
     """Whether the player has a pending Suspicious event prompt."""
 
     _sus_prompt_response: bool | None
     """The player's response to the Suspicious event prompt."""
 
-    _next_event: Event | None
+    _next_event: Event | None = None
     """The next event that the player must resolve."""
 
-    _pending_city_prompt: bool
+    _pending_city_prompt: bool = False
     """Whether the player has a pending city choice prompt."""
 
-    _city_prompt_response: City | None
+    _city_prompt_response: City | None = None
     """The player's response to the city choice prompt."""
 
     def __init__(self, name: str) -> None:
@@ -93,8 +93,6 @@ class Player:
         """
 
         self._name = name
-        self._history = [PlayerState()]
-        self._next_event = None
 
     def __str__(self) -> str:
         return self._name
@@ -153,6 +151,11 @@ class Player:
     def next_event_choice(self) -> bool:
         """If the next event is of the choice type"""
         return self._next_event.action == "choose"
+
+    @property
+    def next_event_move(self) -> bool:
+        """If the next event is of the choice type"""
+        return self._next_event.action == "move"
 
     @property
     def next_event_category(self) -> EventCategory:
@@ -264,6 +267,27 @@ class Player:
             if len(options) > 0:
                 return options
 
+        # Default to the current city
+        return [self.city]
+
+    def city_move_destination(self, cities: list[City]) -> City:
+        """The next city a player will move to with move event
+
+        Args:
+            cities (list[City]): The list of cities to choose from.
+
+        Returns:
+            City: The next city a player will move to."""
+
+        # Verify that the event is valid
+        if self.role != PlayerRole.TRAVELER:
+            raise ValueError("Only travelers can choose cities.")
+        assert self.city is not None
+
+        # If the player is in a locked down city, they can only stay there
+        if self.city.in_lockdown:
+            return self.city
+
         # If the player has a move event, they can only move to the target city
         elif self.next_event.action == "move":
             curr_index = cities.index(self.city)
@@ -271,10 +295,10 @@ class Player:
                 (curr_index + self.next_event.amount) % len(cities)
             ]
             if self.can_move(target_city):
-                return [target_city]
+                return target_city
 
         # Default to the current city
-        return [self.city]
+        return self.city
 
     def add_state(self, state: PlayerState) -> None:
         """Add a state to the player's history.
