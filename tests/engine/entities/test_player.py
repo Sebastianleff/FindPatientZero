@@ -14,7 +14,6 @@ class TestPlayer(unittest.TestCase):
         self.dest_city = self.cities[1]
         self.player.state.city = self.player_city
 
-
     def test_player_initialization(self):
         """Test that the Player class can be instantiated correctly with default state."""
         init_state = PlayerState(city=self.player_city)
@@ -94,13 +93,13 @@ class TestPlayer(unittest.TestCase):
 
     def test_blocked_on_condition_conflict(self):
         """Player cannot move if event condition matches a condition in either city."""
-        self.dest_city.state.conditions.append("Curfew")
+        self.dest_city.state.conditions.append("Harbor")
 
         mock_event = Event(
             category=EventCategory.TRAV_HEALTHY,
             description="none",
             action="move",
-            condition="Curfew",
+            condition="Harbor",
         )
 
         with patch.object(Player, "next_event", new_callable=PropertyMock) as mocked:
@@ -116,13 +115,13 @@ class TestPlayer(unittest.TestCase):
     def test_next_cities_choose_event(self):
         """Test next cities player can choose to move to"""
         self.cities[3].state.alerted = True
-        self.cities[2].state.conditions.append("Curfew")
+        self.cities[2].state.conditions.append("Harbor")
 
         mock_event = Event(
             category=EventCategory.TRAV_HEALTHY,
             description="none",
             action="choose",
-            condition="Curfew", #currently no choose events have conditions, but they might in future
+            condition="Harbor", #currently no choose events have conditions, but they might in the future - 6/23/25
         )
 
         with patch.object(Player, "next_event", new_callable=PropertyMock) as mocked:
@@ -130,7 +129,6 @@ class TestPlayer(unittest.TestCase):
             options = self.player.city_options(self.cities)
 
         self.assertEqual(options, [self.cities[0],self.cities[1]])
-
 
     def test_next_cities_move_event(self):
         """Test next cities player can move to"""

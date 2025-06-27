@@ -105,6 +105,8 @@ class Game:
         ]
         self._cities = [City() for _ in range(config.num_cities)]
 
+        self.__game_start()
+
     def __str__(self) -> str:
         output = "ROUND: " + str(self._round)
         output += "\n\nPLAYERS"
@@ -116,6 +118,34 @@ class Game:
         output += f"\n\nPatient Zero: {self._patient_zero}"
 
         return output
+
+    def __game_start(self) -> None:
+        """Carry out the setup phase of the game."""
+        self._phase = GamePhase.GAME_START
+
+        # Pick a random player to be patient zero
+        self._patient_zero = random.choice(self._players)
+
+        # Initialize player states
+        city_choices = list()
+        for player in self._players:
+            if len(city_choices) == 0:
+                city_choices = random.sample(self._cities, len(self._cities))
+            city = city_choices.pop()
+            player.add_state(PlayerState(city=city))
+
+        # Initialize city states
+        for city in self._cities:
+            city.add_state(CityState())
+
+        # Commit initial states to history
+        self._history.append(
+            GameState(
+                round=self._round,
+                players={player: player.state for player in self._players},
+                cities={city: city.state for city in self._cities},
+            )
+        )
 
     def get_governor(self, city: City) -> Player | None:
         """Get the governor of a city, if one exists.
