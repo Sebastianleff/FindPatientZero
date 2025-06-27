@@ -61,7 +61,6 @@ class TestCity(unittest.TestCase):
         current_state = CityState(infection_stage=11)
         self.assertTrue(self.city.survey(current_state, advantage))
 
-
     def test_city_add_state(self):
         state = CityState(infection_stage=2)
         self.city.add_state(state)

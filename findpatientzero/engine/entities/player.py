@@ -124,21 +124,20 @@ class Player:
         """The health state of the player."""
         return self.state.health
 
-    def prompt_suspicious(self) -> None:
-        """Update flags indicating that the player has a pending Suspicious
-        event prompt."""
+    @property
+    def last_event(self) -> Event:
+        """The last event that the player resolved."""
+        return self.state.event
 
-        self._sus_prompt_pending = True
-        self._sus_prompt_response = None
+    @property
+    def pending_city_prompt(self) -> bool:
+        """Whether the player has a pending city choice prompt."""
+        return self._pending_city_prompt
 
-    def respond_suspicious(self, response: bool) -> None:
-        """Set the player's response to the Suspicious event prompt.
-
-        Args:
-            response (bool): The player's response to the prompt."""
-
-        self._sus_prompt_response = response
-        self._sus_prompt_pending = False
+    @property
+    def city_prompt_response(self) -> City | None:
+        """The player's response to the city choice prompt."""
+        return self._city_prompt_response
 
     @property
     def sus_prompt_pending(self) -> bool:
@@ -151,9 +150,9 @@ class Player:
         return self._sus_prompt_response
 
     @property
-    def last_event(self) -> Event:
-        """The last event that the player resolved."""
-        return self.state.event
+    def next_event_choice(self) -> bool:
+        """If the next event is of the choice type"""
+        return self._next_event.action == "choose"
 
     @property
     def next_event_category(self) -> EventCategory:
@@ -277,6 +276,31 @@ class Player:
         # Default to the current city
         return [self.city]
 
+    def add_state(self, state: PlayerState) -> None:
+        """Add a state to the player's history.
+
+        Args:
+            state (PlayerState): The state to add.
+        """
+        self._history.append(state)
+        self._next_event = None
+
+    def prompt_suspicious(self) -> None:
+        """Update flags indicating that the player has a pending Suspicious
+        event prompt."""
+
+        self._sus_prompt_pending = True
+        self._sus_prompt_response = None
+
+    def respond_suspicious(self, response: bool) -> None:
+        """Set the player's response to the Suspicious event prompt.
+
+        Args:
+            response (bool): The player's response to the prompt."""
+
+        self._sus_prompt_response = response
+        self._sus_prompt_pending = False
+
     def prompt_city_choice(self) -> None:
         """Update flags indicating that the player has a pending city choice
         prompt."""
@@ -294,25 +318,6 @@ class Player:
 
         self._pending_city_prompt = False
         self._city_prompt_response = city
-
-    @property
-    def pending_city_prompt(self) -> bool:
-        """Whether the player has a pending city choice prompt."""
-        return self._pending_city_prompt
-
-    @property
-    def city_prompt_response(self) -> City | None:
-        """The player's response to the city choice prompt."""
-        return self._city_prompt_response
-
-    def add_state(self, state: PlayerState) -> None:
-        """Add a state to the player's history.
-
-        Args:
-            state (PlayerState): The state to add.
-        """
-        self._history.append(state)
-        self._next_event = None
 
 
 class CPUPlayer(Player):

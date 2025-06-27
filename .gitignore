@@ -88,5 +88,6 @@ local_settings.py
 .env
 venv/
 .venv/
-.vscode
+.vscode/
+vscode/
 .idea
