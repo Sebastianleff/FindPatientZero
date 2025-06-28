@@ -293,7 +293,7 @@ class Game:
 
         for player in self._players:
             if not player.role == PlayerRole.OBSERVER:
-                _ = player.next_event
+                player.roll_next_event()
 
     def city_prompts(self) -> None:
         """Prompt players to chose what city to move to."""

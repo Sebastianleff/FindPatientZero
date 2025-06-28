@@ -60,11 +60,13 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(self.player.next_event_category, EventCategory.TRAV_INFECTED)
 
     def test_next_event(self):
-        """Test that the player can get the next event."""
+        """Test that the player can generate and get the next event."""
+        self.player.roll_next_event()
         self.assertIsInstance(self.player.next_event, Event)
         self.assertEqual(self.player.next_event.category, EventCategory.TRAV_HEALTHY)
 
         self.player.add_state(PlayerState(health=InfectionState.SYMPTOMATIC))
+        self.player.roll_next_event()
         self.assertIsInstance(self.player.next_event, Event)
         self.assertEqual(self.player.next_event.category, EventCategory.TRAV_INFECTED)
 

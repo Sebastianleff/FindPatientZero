@@ -158,6 +158,14 @@ class Player:
         return self._next_event.action == "move"
 
     @property
+    def next_event(self) -> Event:
+        """The next event that the player must resolve."""
+        # If the player has no next event category, return a "no event" event
+        if self.next_event_category is EventCategory.NONE:
+            return Event()
+        return self._next_event
+
+    @property
     def next_event_category(self) -> EventCategory:
         """The category of the next event that the player must resolve."""
 
@@ -191,28 +199,19 @@ class Player:
 
         return category
 
-    @property
-    def next_event(self) -> Event:
-        """The next event that the player must resolve."""
-
-        # If the player has no next event category, return a "no event" event
-        if self.next_event_category is EventCategory.NONE:
-            return Event()
-
+    def roll_next_event(self) -> None:
+        """Roll the next event."""
         # If an event has not been chosen yet, choose one at random
-        if self._next_event is None:
-            pool = EVENTS[self.next_event_category].copy()
+        pool = EVENTS[self.next_event_category].copy()
 
-            # Remove the last event from the pool to avoid repeats
-            try:
-                pool.remove(self.last_event)
-            # If the last event is not in the pool, ignore the error
-            except ValueError:
-                pass
+        # Remove the last event from the pool to avoid repeats
+        try:
+            pool.remove(self.last_event)
+        # If the last event is not in the pool, ignore the error
+        except ValueError:
+            pass
 
-            self._next_event = random.choice(pool)
-
-        return self._next_event
+        self._next_event = random.choice(pool)
 
     def can_move(self, dest: City) -> bool:
         """Whether the player can move to a given city.
