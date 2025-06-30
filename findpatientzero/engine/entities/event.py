@@ -74,21 +74,6 @@ class Event:
 
         return output
 
-    # TODO: Reimplement elsewhere to avoid circular import
-    # def formatted(self, player: Player) -> str:
-    #     """Return the event flavor text with player-specific information."""
-
-    #     output = self.description
-    #     if "$CITY$" in output:
-    #         output = output.replace("$CITY$", player.city.name)
-    #     if "$PLAYER$" in output:
-    #         output = output.replace("$PLAYER$", player.name)
-    #     if "$GOVERNOR$" in output:
-    #         output = output.replace("$GOVERNOR$", player.city.governor.name)
-
-    #     return output
-
-
 def _get_events() -> dict[EventCategory, list[Event]]:
     """Load all events from the data files.
 

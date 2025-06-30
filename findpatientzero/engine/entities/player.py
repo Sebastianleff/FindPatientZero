@@ -321,6 +321,9 @@ class Player:
             state (PlayerState): The state to add.
         """
         self._history.append(state)
+
+    def reset_next_event(self) -> None:
+        """Reset the next event."""
         self._next_event = None
 
     def prompt_suspicious(self) -> None:

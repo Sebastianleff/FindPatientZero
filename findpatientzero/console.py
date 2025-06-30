@@ -9,6 +9,19 @@ yes_no_map = {
     "n": False,
 }
 
+def format_event(player) -> str:
+    """Return the event flavor text with player-specific information."""
+
+    output = player.next_event.description
+    if "$CITY$" in output:
+        output = output.replace("$CITY$", player.city.name)
+    if "$PLAYER$" in output:
+        output = output.replace("$PLAYER$", player.name)
+    if "$GOVERNOR$" in output:
+        output = output.replace("$GOVERNOR$", player.city.governor.name)
+
+    return output
+
 def main():
     # Get human players
     player_names = ["Lock", "Richardson", "Beckett", "Bea", "Ryan", "Wolf"] #temp for testing
@@ -56,7 +69,6 @@ def main():
     game_over = False
 
     while not game_over:
-        # TODO refactor so inputs are taken to game class first before being passed to players
         if game.phase == GamePhase.SUS_PROMPTS and game.prompts_pending:
             for player in game.players:
                 if player.sus_prompt_pending:
@@ -74,9 +86,10 @@ def main():
                 if player.pending_city_prompt:
                     city_list = player.city_options(game.cities)
                     prompt = (
-                            f"{player.name} - What city do you want to move to? Type City name or Number in list:\n"
+                            f"{player.name} - What city do you want to move to? Type City name or Number in list:\n" #QUESTION current city need to be removed from possible cities?
                             + "\n".join(f"{idx}: {city}" for idx, city in enumerate(city_list, 1))
-                            + "\n"
+                            + f"\nCurrent City: {player.city}"
+                            + "\nInput: "
                     )
                     while True:
                         user_response = input(prompt).strip()
@@ -93,7 +106,6 @@ def main():
                             print("Invalid input. Try again.")
 
 
-        # Other phases: game logic only, no user input
         game.go_to_next_phase()
         assert game.phase != GamePhase.ERROR
 

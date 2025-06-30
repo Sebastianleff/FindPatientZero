@@ -321,8 +321,8 @@ class Game:
         new = replace(
             state,
             conditions=(state.conditions.copy()
-                        if state.lockdown > 0
-                        else list()),
+                if state.lockdown > 0
+                else []),
             infection_pause=max(0, state.infection_pause - 1),
             lockdown=max(0, state.lockdown - 1),
             infection_stage=(
@@ -389,7 +389,7 @@ class Game:
             ):
                 new.health = InfectionState.ASYMPTOMATIC
                 new.infected_round = self._round
-            elif current_player.health != InfectionState.IMMUNE:
+            elif current_player.health in (InfectionState.ASYMPTOMATIC, InfectionState.SYMPTOMATIC): #QUESTION Should infected travelers arriving in a infected city accelerate infection in that city?
                 assert current_player.infected_round is not None
                 roll = random.randint(1, 100)
                 if self._round - current_player.infected_round <= 4:
@@ -459,11 +459,14 @@ class Game:
         # Update player states
         new_player_states = dict()
         for player in self._players:
-            assert player.city_prompt_response is not None
-            dest = player.city_prompt_response
+            if player.role == PlayerRole.OBSERVER:
+                continue
+
+            dest = player.city_move_destination(self._cities)
+            assert dest is not None
             new_player_states[player], new_city_states[dest] = \
                 self.update_player_state(
-                    player, player.state, dest, new_city_states[dest]
+                    player.state, dest, new_city_states[dest]
                 )
 
         # Reassign dead players to new roles
@@ -486,6 +489,8 @@ class Game:
             )
         )
         for player, state in new_player_states.items():
+            state.event = player.next_event
             player.add_state(state)
+            player.reset_next_event()
         for city, state in new_city_states.items():
             city.add_state(state)
