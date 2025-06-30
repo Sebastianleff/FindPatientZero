@@ -67,22 +67,22 @@ class Player:
     _name: str
     """The name of the player."""
 
-    _history: list[PlayerState] = [PlayerState()]
+    _history: list[PlayerState]
     """The history of the player's states."""
 
-    _sus_prompt_pending: bool = False
+    _sus_prompt_pending: bool
     """Whether the player has a pending Suspicious event prompt."""
 
     _sus_prompt_response: bool | None
     """The player's response to the Suspicious event prompt."""
 
-    _next_event: Event | None = None
+    _next_event: Event | None
     """The next event that the player must resolve."""
 
-    _pending_city_prompt: bool = False
+    _pending_city_prompt: bool
     """Whether the player has a pending city choice prompt."""
 
-    _city_prompt_response: City | None = None
+    _city_prompt_response: City | None
     """The player's response to the city choice prompt."""
 
     def __init__(self, name: str) -> None:
@@ -93,6 +93,12 @@ class Player:
         """
 
         self._name = name
+        self._history = []
+        self._sus_prompt_pending = False
+        self._sus_prompt_response = None
+        self._next_event = None
+        self._pending_city_prompt = False
+        self._city_prompt_response = None
 
     def __str__(self) -> str:
         return self._name
@@ -261,7 +267,7 @@ class Player:
             return [self.city]
         
         # If the player has a choose event, they can only move to uninfected cities
-        elif self.next_event.action == "choose":
+        elif self.next_event_choice:
             options = [city for city in cities if self.can_move(city)]
             if len(options) > 0:
                 return options
@@ -270,7 +276,7 @@ class Player:
         return [self.city]
 
     def city_move_destination(self, cities: list[City]) -> City:
-        """The next city a player will move to with move event
+        """The next city a player will move to with current event
 
         Args:
             cities (list[City]): The list of cities to choose from.
@@ -287,8 +293,12 @@ class Player:
         if self.city.in_lockdown:
             return self.city
 
+        # If current event is choice, return chosen city
+        elif self.next_event_choice:
+            return self.city_prompt_response
+
         # If the player has a move event, they can only move to the target city
-        elif self.next_event.action == "move":
+        elif self.next_event_move:
             curr_index = cities.index(self.city)
             target_city = cities[
                 (curr_index + self.next_event.amount) % len(cities)
@@ -296,8 +306,13 @@ class Player:
             if self.can_move(target_city):
                 return target_city
 
-        # Default to the current city
+        # Default to the current city for stay events
         return self.city
+
+    def infect_patient_zero(self) -> None:
+        """Infect patient zero. Should only be called for patient zero on game start."""
+        self.state.health = InfectionState.ASYMPTOMATIC
+        self.state.infected_round = 0
 
     def add_state(self, state: PlayerState) -> None:
         """Add a state to the player's history.

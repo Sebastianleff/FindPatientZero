@@ -76,16 +76,16 @@ class Game:
     _cities: list[City]
     """The list of cities in the game."""
 
-    _history: list[GameState] = []
+    _history: list[GameState]
     """The history of the game's states."""
 
-    _round: int = 0
+    _round: int
     """The current round number of the game."""
 
-    _phase: GamePhase = GamePhase.GAME_START
+    _phase: GamePhase
     """The current phase of the game."""
 
-    _prompts_pending: bool = False
+    _prompts_pending: bool
     """If any players have pending prompts"""
 
     _patient_zero: Player
@@ -105,8 +105,11 @@ class Game:
             CPUPlayer() for _ in range(config.num_players - len(player_names))
         ]
         self._cities = [City() for _ in range(config.num_cities)]
+        self._history = []
+        self._round = 0
+        self._prompts_pending = False
 
-        self.__game_start()
+        self.game_start()
 
     def __str__(self) -> str:
         output = "ROUND: " + str(self._round)
@@ -120,12 +123,9 @@ class Game:
 
         return output
 
-    def __game_start(self) -> None:
+    def game_start(self) -> None:
         """Carry out the setup phase of the game."""
         self._phase = GamePhase.GAME_START
-
-        # Pick a random player to be patient zero
-        self._patient_zero = random.choice(self._players)
 
         # Initialize player states
         city_choices = list()
@@ -134,6 +134,10 @@ class Game:
                 city_choices = random.sample(self._cities, len(self._cities))
             city = city_choices.pop()
             player.add_state(PlayerState(city=city))
+
+        # Pick a random player to be patient zero and infect them
+        self._patient_zero = random.choice(self._players)
+        self._patient_zero.infect_patient_zero()
 
         # Initialize city states
         for city in self._cities:

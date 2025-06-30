@@ -81,7 +81,7 @@ class City:
         """
         index = randint(0, len(City.names) - 1)
         self._name = City.names.pop(index)
-        self._history = [CityState()]
+        self._history = []
 
     def __str__(self) -> str:
         return self.name
