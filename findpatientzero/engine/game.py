@@ -61,6 +61,7 @@ class GamePhase(Enum):
     ROLL_EVENTS = "Rolling events"
     CITY_PROMPTS = "Prompting players to choose cities"
     RESOLVE_MOVES = "Resolving moves"
+    GAME_OVER = "Game over"
     ERROR = "An error occurred"
 
 
@@ -110,18 +111,6 @@ class Game:
         self._prompts_pending = False
 
         self.game_start()
-
-    def __str__(self) -> str:
-        output = "ROUND: " + str(self._round)
-        output += "\n\nPLAYERS"
-        for i, player in enumerate(self._players):
-            output += f"\n\tPlayer {i+1}: {player}"
-        output += "\n\nCITIES"
-        for i, city in enumerate(self._cities):
-            output += f"\n\tCity {i+1}: {city}"
-        output += f"\n\nPatient Zero: {self._patient_zero}"
-
-        return output
 
     def game_start(self) -> None:
         """Carry out the setup phase of the game."""
@@ -198,6 +187,11 @@ class Game:
         return self._prompts_pending
 
     @property
+    def all_dead(self) -> bool:
+        """If all players are dead"""
+        return all(player.state.health == InfectionState.DEAD for player in self._players)
+
+    @property
     def phase_complete(self) -> bool:
         """Whether the current game phase is complete."""
 
@@ -266,8 +260,11 @@ class Game:
             self.resolve_moves()
 
         elif self._phase == GamePhase.RESOLVE_MOVES:
-            self._phase = GamePhase.ROUND_START
-            self.round_start()
+            if self.all_dead:
+                self._phase = GamePhase.GAME_OVER
+            else:
+                self._phase = GamePhase.ROUND_START
+                self.round_start()
 
         else:
             self._phase = GamePhase.ERROR

@@ -22,7 +22,15 @@ def format_event(player) -> str:
 
     return output
 
+def wait_for_enter(prompt):
+    while True:
+        if input(prompt) == "":
+            break
+
 def main():
+
+    game_master_mode = False
+
     # Get human players
     player_names = ["Lock", "Richardson", "Beckett", "Bea", "Ryan", "Wolf"] #temp for testing
     #while True:
@@ -57,6 +65,16 @@ def main():
     #     except ValueError:
     #         print("Please enter a valid number.")
 
+    #Set game master mode
+    # while True:
+    #     prompt = "Do you want to turn on Game Master mode (Shows who is patient zero)? Yes or No: "
+    #     user_response = input(prompt).strip()
+    #     try:
+    #         game_master_mode = (yes_no_map[user_response.lower()])
+    #         break
+    #     except KeyError:
+    #         print("Invalid input. Try again.")
+
     num_cities = len(player_names) # temp for testing
     # Create a new game control object
     try:
@@ -69,7 +87,34 @@ def main():
     game_over = False
 
     while not game_over:
-        if game.phase == GamePhase.SUS_PROMPTS and game.prompts_pending:
+        if game.phase == GamePhase.ROUND_START:
+            if not game_master_mode:
+                print(
+                    "\n"
+                    + f"Round {game.round} start"
+                    + "\n\nPLAYERS"
+                    + "".join(f"\n\tPlayer {i + 1}: {player} (City: {player.city})" for i, player in
+                              enumerate(game.players))
+                )
+            else:
+                print(
+                    "\n"
+                    + f"Round {game.round} start"
+                    + f"\n\nPatient Zero: {game.patient_zero}"
+                    + "\n\nPLAYERS"
+                    + "".join(
+                        f"\n\tPlayer {i + 1}: {player} (Health: {player.health.value}, City: {player.city})"
+                        for i, player in enumerate(game.players)
+                    )
+                    + "\n\nCITIES"
+                    + "".join(
+                        f"\n\tCity {i + 1}: {city} (Infection: {city.infection_stage})"
+                        for i, city in enumerate(game.cities)
+                    )
+                )
+            wait_for_enter("\nPress Enter to continue round...")
+
+        elif game.phase == GamePhase.SUS_PROMPTS and game.prompts_pending:
             for player in game.players:
                 if player.sus_prompt_pending:
                     prompt = (player.name + " - Do you want to roll for a suspicion event? Yes or No: ")
@@ -81,12 +126,20 @@ def main():
                         except KeyError:
                             print("Invalid input. Try again.")
 
+        elif game.phase == GamePhase.ROLL_EVENTS:
+            print("\nEvents:")
+            for player in game.players:
+                if not player.next_event_choice:
+                    print(
+                        f"{player.name} - {format_event(player)}"
+                    )
+
         elif game.phase == GamePhase.CITY_PROMPTS and game.prompts_pending:
             for player in game.players:
                 if player.pending_city_prompt:
                     city_list = player.city_options(game.cities)
                     prompt = (
-                            f"{player.name} - What city do you want to move to? Type City name or Number in list:\n" #QUESTION current city need to be removed from possible cities?
+                            f"{player.name} - {format_event(player)} Type City name or Number in list:\n" #QUESTION can you choose to stay in current city or must move to new one? and should prompt say move to uninfected city, gives  away which city is infected?
                             + "\n".join(f"{idx}: {city}" for idx, city in enumerate(city_list, 1))
                             + f"\nCurrent City: {player.city}"
                             + "\nInput: "
@@ -105,9 +158,11 @@ def main():
                         else:
                             print("Invalid input. Try again.")
 
-
         game.go_to_next_phase()
+        game_over = game.phase == GamePhase.GAME_OVER
         assert game.phase != GamePhase.ERROR
+
+    print("Game over")
 
 if __name__ == "__main__":
     main()
