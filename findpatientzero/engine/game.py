@@ -386,20 +386,22 @@ class Game:
             ):
                 new.health = InfectionState.ASYMPTOMATIC
                 new.infected_round = self._round
-            elif current_player.health in (InfectionState.ASYMPTOMATIC, InfectionState.SYMPTOMATIC): #QUESTION Should infected travelers arriving in a infected city accelerate infection in that city?
+            elif current_player.health in (InfectionState.ASYMPTOMATIC, InfectionState.SYMPTOMATIC):
                 assert current_player.infected_round is not None
                 roll = random.randint(1, 100)
                 if self._round - current_player.infected_round <= 4:
-                    if roll > 50:
+                    if roll > 50 and dest_state.infection_stage == 0:
                         dest_state.infection_stage += 1
                 elif self._round - current_player.infected_round <= 9:
-                    dest_state.infection_stage += 1
+                    if dest_state.infection_stage == 0:
+                        dest_state.infection_stage += 1
                     if 40 < roll <= 87:
                         new.health = InfectionState.SYMPTOMATIC
                     elif roll > 87:
                         new.health = InfectionState.DEAD
                 else:
-                    dest_state.infection_stage += 1
+                    if dest_state.infection_stage == 0:
+                        dest_state.infection_stage += 1
                     if roll <= 50:
                         new.health = InfectionState.IMMUNE
                     else:
