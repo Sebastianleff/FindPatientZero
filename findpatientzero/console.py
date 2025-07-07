@@ -30,6 +30,7 @@ def wait_for_enter(prompt):
 def main():
 
     game_master_mode = False
+    auto_roll = True
 
     # Get human players
     player_names = []
@@ -75,9 +76,20 @@ def main():
         except KeyError:
             print("Invalid input. Try again.")
 
+    #Chose if dice rolls are automatic
+    while True:
+        prompt = "Do you want to turn on manual dice rolls (Requires manually inputting numbers rolled by players with D100s)? Yes or No: "
+        user_response = input(prompt).strip()
+        try:
+            #Invert response to match internal logic, while still having clean interface prompt
+            auto_roll = not (yes_no_map[user_response.lower()])
+            break
+        except KeyError:
+            print("Invalid input. Try again.")
+
     # Create a new game control object
     try:
-        config = GameConfig(num_players=len(player_names), num_cities=num_cities)
+        config = GameConfig(num_players=len(player_names), num_cities=num_cities, auto_roll=auto_roll)
         game = Game(config, player_names)
     except ValueError as e:
         print(e)
@@ -124,6 +136,24 @@ def main():
                             break
                         except KeyError:
                             print("Invalid input. Try again.")
+
+        elif game.phase == GamePhase.ROLL_DICE:
+            if game.config.auto_roll:
+                print("Rolling Events...")
+            elif game.prompts_pending:
+                for player in game.players:
+                    if player.roll_prompt_pending:
+                        prompt = (player.name + " - Roll for your next event. Number between 1 and 100: ")
+                        while True:
+                            user_response = input(prompt).strip()
+                            try:
+                                roll = int(user_response)
+                                if not 1 <= roll <= 100:
+                                    raise ValueError
+                                player.respond_roll(roll)
+                                break
+                            except ValueError:
+                                print("Invalid input. Try again.")
 
         elif game.phase == GamePhase.ROLL_EVENTS:
             print("\nEvents:")

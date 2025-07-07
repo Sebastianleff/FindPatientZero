@@ -31,6 +31,9 @@ class GameConfig:
     lockdown_duration: int = 2
     """The number of rounds a city remains in lockdown."""
 
+    auto_roll: bool = True
+    """Whether the game should automatically roll dice or get player input."""
+
     def __post_init__(self):
         assert self.num_players >= 2
         assert self.num_cities >= 2
@@ -58,6 +61,7 @@ class GamePhase(Enum):
     GAME_START = "Starting a new game"
     ROUND_START = "Starting a new round"
     SUS_PROMPTS = "Governors deciding whether to roll a Suspicious event"
+    ROLL_DICE = "Players input dice roll for events"
     ROLL_EVENTS = "Rolling events"
     CITY_PROMPTS = "Prompting players to choose cities"
     RESOLVE_MOVES = "Resolving moves"
@@ -208,6 +212,9 @@ class Game:
                 if player.role == PlayerRole.GOVERNOR
             )
 
+        if self._phase == GamePhase.ROLL_DICE:
+            return True #TODO add check for roll dice phase
+
         if self._phase == GamePhase.ROLL_EVENTS:
             return all(
                 player
@@ -234,6 +241,7 @@ class Game:
         Returns:
             True if the game phase was successfully executed, False otherwise.
         """
+
         if not self.phase_complete:
             raise RuntimeError("Cannot advance phase: current phase is not complete.")
 
@@ -246,6 +254,15 @@ class Game:
             self.sus_prompts()
 
         elif self._phase == GamePhase.SUS_PROMPTS:
+            self._prompts_pending = False
+            if self.config.auto_roll:
+                self._phase = GamePhase.ROLL_EVENTS
+                self.roll_events()
+            else:
+                self._phase = GamePhase.ROLL_DICE
+                self.roll_prompts()
+
+        elif self._phase == GamePhase.ROLL_DICE:
             self._prompts_pending = False
             self._phase = GamePhase.ROLL_EVENTS
             self.roll_events()
@@ -288,6 +305,17 @@ class Game:
                 if governor is not None:
                     self._prompts_pending = True
                     governor.prompt_suspicious()
+
+    def roll_prompts(self):
+        """Prompt players to input dice rolls """
+
+        for player in self._players:
+            if player.role == PlayerRole.TRAVELER:
+                self._prompts_pending = True
+                player.prompt_roll()
+            elif player.role == PlayerRole.GOVERNOR and player.sus_prompt_response:
+                self._prompts_pending = True
+                player.prompt_roll()
 
     def roll_events(self) -> None:
         """Roll events for all players."""

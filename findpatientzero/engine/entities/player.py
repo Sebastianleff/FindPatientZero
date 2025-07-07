@@ -76,6 +76,12 @@ class Player:
     _sus_prompt_response: bool | None
     """The player's response to the Suspicious event prompt."""
 
+    _roll_prompt_pending: bool
+    """Whether the player has a pending Roll prompt."""
+
+    _roll_prompt_response: int | None
+    """The player's response to the Roll prompt."""
+
     _next_event: Event | None
     """The next event that the player must resolve."""
 
@@ -96,6 +102,8 @@ class Player:
         self._history = []
         self._sus_prompt_pending = False
         self._sus_prompt_response = None
+        self._roll_prompt_pending = False
+        self._roll_prompt_response = None
         self._next_event = None
         self._pending_city_prompt = False
         self._city_prompt_response = None
@@ -154,6 +162,16 @@ class Player:
         return self._sus_prompt_response
 
     @property
+    def roll_prompt_pending(self) -> bool:
+        """Whether the player has a pending roll prompt."""
+        return self._roll_prompt_pending
+
+    @property
+    def roll_prompt_response(self) -> int | None:
+        """The player's response to the roll prompt."""
+        return self._roll_prompt_response
+
+    @property
     def next_event_choice(self) -> bool:
         """If the next event is of the choice type"""
         return self._next_event.action == "choose"
@@ -206,7 +224,7 @@ class Player:
         return category
 
     def roll_next_event(self) -> None:
-        """Roll the next event.""" #TODO add player input choices
+        """Roll the next event."""
         # If an event has not been chosen yet, choose one at random
         pool = EVENTS[self.next_event_category].copy()
 
@@ -217,7 +235,13 @@ class Player:
         except ValueError:
             pass
 
-        self._next_event = random.choice(pool)
+        if self._roll_prompt_response is not None:
+            index = min((self._roll_prompt_response - 1) * len(pool) // 100, len(pool) - 1)
+            event = pool[index]
+        else:
+            event = random.choice(pool)
+
+        self._next_event = event
 
     def can_move(self, dest: City) -> bool:
         """Whether the player can move to a given city.
@@ -341,6 +365,18 @@ class Player:
 
         self._sus_prompt_response = response
         self._sus_prompt_pending = False
+
+    def prompt_roll(self):
+        """Update flags indicating that the player has a pending Roll."""
+
+        self._roll_prompt_pending = True
+        self._roll_prompt_response = None
+
+    def respond_roll(self, response: int) -> None:
+        """Set the player's response to the Roll event prompt."""
+
+        self._roll_prompt_pending = False
+        self._roll_prompt_response = response
 
     def prompt_city_choice(self) -> None:
         """Update flags indicating that the player has a pending city choice
