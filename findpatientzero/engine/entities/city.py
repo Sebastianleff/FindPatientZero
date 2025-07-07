@@ -58,7 +58,7 @@ class City:
         9: 55,
         10: 89,
         11: 100,
-    }
+    } #TODO auto servery cities at (2/10) infection level
     """The thresholds for whether a d100 roll will detect infection in the city at each stage of infection."""
 
     MAX_INFECTION_STAGE: int = max(SURVEY_THRESHOLDS.keys())

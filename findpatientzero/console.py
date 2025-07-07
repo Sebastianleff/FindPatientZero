@@ -138,7 +138,7 @@ def main():
                 if player.pending_city_prompt:
                     city_list = player.city_options(game.cities)
                     prompt = (
-                            f"{player.name} - {format_event(player)} Type City name or Number in list:\n" #QUESTION can you choose to stay in current city or must move to new one? and should prompt say move to uninfected city, gives  away which city is infected?
+                            f"{player.name} - {format_event(player)} Type City name or Number in list:\n"
                             + "\n".join(f"{idx}: {city}" for idx, city in enumerate(city_list, 1))
                             + f"\nCurrent City: {player.city}"
                             + "\nInput: "

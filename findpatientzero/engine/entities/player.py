@@ -206,7 +206,7 @@ class Player:
         return category
 
     def roll_next_event(self) -> None:
-        """Roll the next event."""
+        """Roll the next event.""" #TODO add player input choices
         # If an event has not been chosen yet, choose one at random
         pool = EVENTS[self.next_event_category].copy()
 
@@ -361,7 +361,7 @@ class Player:
         self._city_prompt_response = city
 
 
-class CPUPlayer(Player):
+class CPUPlayer(Player): #TODO add proper AI and AI control
     """A player that is controlled by the game engine."""
 
     names: list[str] = load_cpu_names()
