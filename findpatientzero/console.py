@@ -143,23 +143,20 @@ def main():
                         except KeyError:
                             print("Invalid input. Try again.")
 
-        elif game.phase == GamePhase.ROLL_DICE:
-            if game.config.auto_roll:
-                print("Rolling Events...")
-            elif game.prompts_pending:
-                for player in game.players:
-                    if player.roll_prompt_pending:
-                        prompt = (player.name + " - Roll for your next event. Number between 1 and 100: ")
-                        while True:
-                            user_response = input(prompt).strip()
-                            try:
-                                roll = int(user_response)
-                                if not 1 <= roll <= 100:
-                                    raise ValueError
-                                player.respond_roll(roll)
-                                break
-                            except ValueError:
-                                print("Invalid input. Try again.")
+        elif game.phase == GamePhase.ROLL_DICE and game.prompts_pending:
+            for player in game.players:
+                if player.roll_prompt_pending:
+                    prompt = (player.name + " - Roll for your next event. Number between 1 and 100: ")
+                    while True:
+                        user_response = input(prompt).strip()
+                        try:
+                            roll = int(user_response)
+                            if not 1 <= roll <= 100:
+                                raise ValueError
+                            player.respond_roll(roll)
+                            break
+                        except ValueError:
+                            print("Invalid input. Try again.")
 
         elif game.phase == GamePhase.ROLL_EVENTS:
             print("\nEvents:")
