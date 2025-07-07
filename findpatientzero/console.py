@@ -1,5 +1,5 @@
 """Console-based interface for the game."""
-
+from findpatientzero.engine.entities.player import PlayerRole
 from findpatientzero.engine.game import Game, GameConfig, GamePhase
 
 yes_no_map = {
@@ -99,13 +99,19 @@ def main():
 
     while not game_over:
         if game.phase == GamePhase.ROUND_START:
+            wait_for_enter("\nPress Enter to start round...")
             if not game_master_mode:
                 print(
                     "\n"
                     + f"Round {game.round} start"
                     + "\n\nPLAYERS"
-                    + "".join(f"\n\tPlayer {i + 1}: {player} (City: {player.city})" for i, player in
+                    + "".join(f"\n\t{player} (Role: {player.role.value}, City: {player.city})" for i, player in
                               enumerate(game.players))
+                    + "\n\nCITIES"
+                    + "".join(
+                        f"\n\t{city} (Alerted: {city.alerted})"
+                        for i, city in enumerate(game.cities)
+                    )
                 )
             else:
                 print(
@@ -114,12 +120,12 @@ def main():
                     + f"\n\nPatient Zero: {game.patient_zero}"
                     + "\n\nPLAYERS"
                     + "".join(
-                        f"\n\tPlayer {i + 1}: {player} (Health: {player.health.value}, City: {player.city})"
+                        f"\n\t{player} (Health: {player.health.value}, City: {player.city})"
                         for i, player in enumerate(game.players)
                     )
                     + "\n\nCITIES"
                     + "".join(
-                        f"\n\tCity {i + 1}: {city} (Infection: {city.infection_stage})"
+                        f"\n\t{city} (Infection: {city.infection_stage})"
                         for i, city in enumerate(game.cities)
                     )
                 )
@@ -132,7 +138,7 @@ def main():
                     while True:
                         user_response = input(prompt).strip()
                         try:
-                            player.respond_suspicious(yes_no_map[user_response.lower()])
+                            player.respond_suspicious(yes_no_map[user_response.lower()]) #FIXME make it so responding no to sus means no event roll for player that turn. Make sure not roll and prompting when on cooldown, and make results explicit
                             break
                         except KeyError:
                             print("Invalid input. Try again.")
@@ -169,8 +175,8 @@ def main():
                     city_list = player.city_options(game.cities)
                     prompt = (
                             f"{player.name} - {format_event(player)} Type City name or Number in list:\n"
+                            + f"Current City: {player.city}\n"
                             + "\n".join(f"{idx}: {city}" for idx, city in enumerate(city_list, 1))
-                            + f"\nCurrent City: {player.city}"
                             + "\nInput: "
                     )
                     while True:

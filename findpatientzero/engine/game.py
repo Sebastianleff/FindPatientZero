@@ -486,7 +486,7 @@ class Game:
         # Update player states
         new_player_states = dict()
         for player in self._players:
-            if player.role == PlayerRole.OBSERVER:
+            if player.role == PlayerRole.OBSERVER or player.role == PlayerRole.GOVERNOR:
                 continue
 
             dest = player.city_move_destination(self._cities)
