@@ -10,9 +10,9 @@ event_types:
 
 # Survey for infections
 - action: survey
-  description: 'Roll to search for infections.'
+  description: 'Search for infections.'
 - action: survey_adv
-  description: 'Roll to search for infections twice.'
+  description: 'Search for infections carefully.'
 
 # Do nothing
 - action: pass

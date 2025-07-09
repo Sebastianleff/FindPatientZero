@@ -437,6 +437,7 @@ class Game:
 
         return new, dest_state
 
+    # TODO make sure player is in city they are governor off.
     def reassign_players(
                 self,
                 dead_players: dict[Player, PlayerState],

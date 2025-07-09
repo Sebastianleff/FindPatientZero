@@ -32,7 +32,7 @@ events:
 - description: 'In light of news of a spreading plague, you tell your city guards to look out for citizens showing symptoms:'
   action: survey
   frequency: 2
-- description: 'You begin paying street urchins for information of the populace:'
+- description: 'You begin paying street urchins for information on the populace:'
   action: survey
   frequency: 2
 - description: 'The guards at the gates have begun turning away people who are coughing and disoriented. You decide to survey the population to be safe:'
