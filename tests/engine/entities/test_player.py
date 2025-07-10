@@ -1,7 +1,10 @@
 """Tests for classes in the Player module."""
 
 import unittest
+from email.policy import default
 from unittest.mock import patch, PropertyMock
+
+from findpatientzero.engine.entities.city import CityState
 from findpatientzero.engine.entities.player import *
 
 
@@ -9,13 +12,15 @@ class TestPlayer(unittest.TestCase):
 
     def setUp(self):
         self.player = Player("MacTester")
-        self.cities = [City(),City(),City(),City()]
+        self.cities = [City(), City(), City(), City()]
+        for city in self.cities:
+            city.add_state(CityState())
         self.player_city =  self.cities[0]
         self.dest_city = self.cities[1]
-        self.player.state.city = self.player_city
+        self.player.add_state(PlayerState(city=self.player_city))
 
     def test_player_initialization(self):
-        """Test that the Player class can be instantiated correctly with default state."""
+        """Test that the Player class can be instantiated correctly with the default state."""
         init_state = PlayerState(city=self.player_city)
         self.assertIsInstance(self.player, Player)
         self.assertEqual(self.player.name, "MacTester")
@@ -72,6 +77,7 @@ class TestPlayer(unittest.TestCase):
 
     def test_can_move_healthy(self):
         """Test that the player can move cities when healthy or infected."""
+        self.player.roll_next_event()
         self.assertTrue(self.player.can_move(self.dest_city))
         self.player.state.health = InfectionState.SYMPTOMATIC
         self.assertTrue(self.player.can_move(self.dest_city))
@@ -85,7 +91,6 @@ class TestPlayer(unittest.TestCase):
             description="none",
             action="choose",
             condition=None,
-
         )
 
         with patch.object(Player, "next_event", new_callable=PropertyMock) as mocked:
@@ -94,7 +99,7 @@ class TestPlayer(unittest.TestCase):
         self.assertFalse(can_move)
 
     def test_blocked_on_condition_conflict(self):
-        """Player cannot move if event condition matches a condition in either city."""
+        """Player cannot move if the event condition matches a condition in either city."""
         self.dest_city.state.conditions.append("Harbor")
 
         mock_event = Event(
@@ -109,7 +114,7 @@ class TestPlayer(unittest.TestCase):
             can_move = self.player.can_move(self.dest_city)
         self.assertFalse(can_move)
 
-    def test_next_cities_lockdown(self):
+    def test_city_lockdown(self):
         """Player cannot move if city is in lockdown."""
         self.player_city.state.lockdown = True
         self.assertEqual(self.player.city_options(self.cities), [self.player_city])
@@ -117,37 +122,30 @@ class TestPlayer(unittest.TestCase):
     def test_next_cities_choose_event(self):
         """Test next cities player can choose to move to"""
         self.cities[3].state.alerted = True
-        self.cities[2].state.conditions.append("Harbor")
 
-        mock_event = Event(
+        self.player._next_event = Event(
             category=EventCategory.TRAV_HEALTHY,
             description="none",
             action="choose",
-            condition="Harbor", #currently no choose events have conditions, but they might in the future - 6/23/25
         )
 
-        with patch.object(Player, "next_event", new_callable=PropertyMock) as mocked:
-            mocked.return_value = mock_event
-            options = self.player.city_options(self.cities)
+        options = self.player.city_options(self.cities)
 
-        self.assertEqual(options, [self.cities[0],self.cities[1]])
+        self.assertEqual(options, [self.cities[0],self.cities[1],self.cities[2]])
 
     def test_next_cities_move_event(self):
         """Test next cities player can move to"""
 
-        mock_event = Event(
+        self.player._next_event  = Event(
             category=EventCategory.TRAV_HEALTHY,
             description="none",
             action="move",
             amount= 1,
         )
 
-        with patch.object(Player, "next_event", new_callable=PropertyMock) as mocked:
-            mocked.return_value = mock_event
-            options = self.player.city_options(self.cities)
+        options = self.player.city_move_destination(self.cities)
 
-        self.assertEqual(options, [self.cities[1]])
-
+        self.assertEqual(options, self.cities[1])
 
 if __name__ == "__main__":
     unittest.main()

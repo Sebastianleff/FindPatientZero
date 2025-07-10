@@ -304,7 +304,7 @@ class Player:
         return [self.city]
 
     def city_move_destination(self, cities: list[City]) -> City:
-        """The next city a player will move to with current event
+        """The next city a player will move to with the current event
 
         Args:
             cities (list[City]): The list of cities to choose from.
@@ -317,7 +317,7 @@ class Player:
             raise ValueError("Only travelers can choose cities.")
         assert self.city is not None
 
-        # If the player is in a locked down city, they can only stay there
+        # If the player is in a locked-down city, they can only stay there
         if self.city.in_lockdown:
             return self.city
 
