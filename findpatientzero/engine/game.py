@@ -34,6 +34,9 @@ class GameConfig:
     auto_roll: bool = True
     """Whether the game should automatically roll dice or get player input."""
 
+    survey_threshold: int = 3
+    """The threshold for automatic surveying a city for infections."""
+
     def __post_init__(self):
         assert self.num_players >= 2
         assert self.num_cities >= 2
@@ -333,14 +336,16 @@ class Game:
                 player.prompt_city_choice()
 
     def update_city_state(self, city: City, state: CityState) -> CityState:
-        """Determine the next state of a city.
+        """
+        Determine the next state of a city.
         
         Args:
             city: The city to update.
             state: The current state of the city.
             
         Returns:
-            The next state of the city."""
+            The next state of the city.
+        """
 
         # Copy the current state with updated values
         new = replace(
@@ -379,6 +384,11 @@ class Game:
                 new.conditions = ["harbor", "road", "merch"]
             elif event.condition is not None:
                 new.conditions.append(event.condition)
+        else:
+            #If there is no player governor survey for infections after a threshold
+            if state.infection_stage > 0 and state.infection_pause == 0:
+                if state.infection_stage >= self.config.survey_threshold:
+                    new.alerted = City.survey(state, False)
 
         return new
 
@@ -437,7 +447,6 @@ class Game:
 
         return new, dest_state
 
-    # TODO make sure player is in city they are governor off.
     def reassign_players(
                 self,
                 dead_players: dict[Player, PlayerState],
@@ -473,9 +482,7 @@ class Game:
         return dead_players, cities
 
     def resolve_moves(self) -> None:
-        """
-        Resolve the moves of all players in the game.
-        """
+        """Resolve the moves of all players in the game."""
 
         # Update city states
         new_city_states = {

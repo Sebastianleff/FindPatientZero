@@ -1,5 +1,4 @@
 """Console-based interface for the game."""
-from findpatientzero.engine.entities.player import PlayerRole
 from findpatientzero.engine.game import Game, GameConfig, GamePhase
 
 yes_no_map = {
@@ -58,7 +57,7 @@ def main():
             f"Enter number of cities (default {len(player_names)}): " #+CPU players
             )
         if num_cities == "":
-            num_cities = len(player_names)# + num_cpu
+            num_cities = len(player_names) + num_cpu
             break
         try:
             num_cities = int(num_cities)
@@ -76,12 +75,12 @@ def main():
         except KeyError:
             print("Invalid input. Try again.")
 
-    #Chose if dice rolls are automatic
+    #Choose if dice rolls are automatic
     while True:
         prompt = "Do you want to turn on manual dice rolls (Requires manually inputting numbers rolled by players with D100s)? Yes or No: "
         user_response = input(prompt).strip()
         try:
-            #Invert response to match internal logic, while still having clean interface prompt
+            #Invert response to match internal logic, while still having sensible prompt phrasing
             auto_roll = not (yes_no_map[user_response.lower()])
             break
         except KeyError:
