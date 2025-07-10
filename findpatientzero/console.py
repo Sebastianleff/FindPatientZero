@@ -124,7 +124,7 @@ def main():
                     )
                     + "\n\nCITIES"
                     + "".join(
-                        f"\n\t{city} (Infection: {city.infection_stage})"
+                        f"\n\t{city} (Infection: {city.infection_stage}, Alerted: {city.alerted} )"
                         for i, city in enumerate(game.cities)
                     )
                 )
@@ -137,7 +137,7 @@ def main():
                     while True:
                         user_response = input(prompt).strip()
                         try:
-                            player.respond_suspicious(yes_no_map[user_response.lower()]) #FIXME make it so responding no to sus means no event roll for player that turn. Make sure not roll and prompting when on cooldown, and make results explicit
+                            player.respond_suspicious(yes_no_map[user_response.lower()])
                             break
                         except KeyError:
                             print("Invalid input. Try again.")
@@ -160,10 +160,13 @@ def main():
         elif game.phase == GamePhase.ROLL_EVENTS:
             print("\nEvents:")
             for player in game.players:
-                if not player.next_event_choice:
-                    print(
-                        f"{player.name} - {format_event(player)}"
-                    )
+                if not player.next_event is None:
+                    if not player.next_event_choice:
+                        print(
+                            f"{player.name} - {format_event(player)}"
+                        )
+                else:
+                    print(f"{player.name} - No event") #TODO should be replaced by governed specific do nothing events... remove checks for none event in player next event properties and resolve logic
 
         elif game.phase == GamePhase.CITY_PROMPTS and game.prompts_pending:
             for player in game.players:

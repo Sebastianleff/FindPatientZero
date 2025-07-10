@@ -174,11 +174,15 @@ class Player:
     @property
     def next_event_choice(self) -> bool:
         """If the next event is of the choice type"""
+        if self._next_event is None:
+            return False
         return self._next_event.action == "choose"
 
     @property
     def next_event_move(self) -> bool:
         """If the next event is of the choice type"""
+        if self._next_event is None:
+            return False
         return self._next_event.action == "move"
 
     @property
@@ -346,16 +350,18 @@ class Player:
         """
         self._history.append(state)
 
-    def reset_next_event(self) -> None:
-        """Reset the next event."""
+    def reset(self) -> None:
+        """Reset for the next round."""
         self._next_event = None
+        self._sus_prompt_response = None
+        self._roll_prompt_response = None
+        self._city_prompt_response = None
 
     def prompt_suspicious(self) -> None:
         """Update flags indicating that the player has a pending Suspicious
         event prompt."""
 
         self._sus_prompt_pending = True
-        self._sus_prompt_response = None
 
     def respond_suspicious(self, response: bool) -> None:
         """Set the player's response to the Suspicious event prompt.
@@ -370,7 +376,6 @@ class Player:
         """Update flags indicating that the player has a pending Roll."""
 
         self._roll_prompt_pending = True
-        self._roll_prompt_response = None
 
     def respond_roll(self, response: int) -> None:
         """Set the player's response to the Roll event prompt."""
@@ -383,7 +388,6 @@ class Player:
         prompt."""
 
         self._pending_city_prompt = True
-        self._city_prompt_response = None
 
     def respond_city_choice(self, city: City) -> None:
         """Set the player's response to the city choice prompt.

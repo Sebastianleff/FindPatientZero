@@ -194,9 +194,10 @@ class Game:
         return self._prompts_pending
 
     @property
-    def all_dead(self) -> bool:
-        """If all players are dead"""
-        return all(player.state.health == InfectionState.DEAD for player in self._players)
+    def game_over(self) -> bool:
+        """If the game has ended."""
+        return all(player.state.health == InfectionState.DEAD or player.state.health == InfectionState.IMMUNE
+                   for player in self._players)
 
     @property
     def phase_complete(self) -> bool:
@@ -280,7 +281,7 @@ class Game:
             self.resolve_moves()
 
         elif self._phase == GamePhase.RESOLVE_MOVES:
-            if self.all_dead:
+            if self.game_over:
                 self._phase = GamePhase.GAME_OVER
             else:
                 self._phase = GamePhase.ROUND_START
@@ -324,11 +325,14 @@ class Game:
         """Roll events for all players."""
 
         for player in self._players:
-            if not player.role == PlayerRole.OBSERVER:
+            if player.role == PlayerRole.TRAVELER:
                 player.roll_next_event()
+            elif player.role == PlayerRole.GOVERNOR:
+                if player.sus_prompt_response or player.city.alerted:
+                    player.roll_next_event()
 
     def city_prompts(self) -> None:
-        """Prompt players to chose what city to move to."""
+        """Prompt players to choose what city to move to."""
 
         for player in self._players:
             if player.next_event_choice and not player.role == PlayerRole.OBSERVER:
@@ -358,37 +362,40 @@ class Game:
             infection_stage=(
                 min(state.infection_stage + 1, City.MAX_INFECTION_STAGE)
                 if state.infection_stage > 0 and state.infection_pause == 0
-                else 0
+                else state.infection_stage
             ),
         )
 
         # Resolve event if there is a governor
         governor = self.get_governor(city)
-        if governor is not None:
+        if governor is not None and governor.next_event is not None:
+            if governor.sus_prompt_response:
+                new.last_sus_roll = self.round
             # Actions
-            event = governor.next_event
-            if event.action == "pause":
-                new.infection_pause = event.amount
-            elif event.action.startswith("survey"):
+            new.event = governor.next_event
+            if new.event.action == "pause":
+                new.infection_pause = new.event.amount
+            elif new.event.action.startswith("survey") and new.alerted == False:
                 new.alerted = City.survey(
-                    state, event.action.endswith("adv")
+                    state, new.event.action.endswith("adv")
                 )
-            elif event.action == "rollback":
+            elif new.event.action == "rollback":
                 new.infection_stage = max(
-                    0, state.infection_stage - event.amount
+                    0, state.infection_stage - new.event.amount
                 )
 
             # Conditions
-            if event.condition == "lockdown":
+            if new.event.condition == "lockdown":
                 new.lockdown = self.config.lockdown_duration
                 new.conditions = ["harbor", "road", "merch"]
-            elif event.condition is not None:
-                new.conditions.append(event.condition)
-        else:
+            elif new.event.condition is not None:
+                new.conditions.append(new.event.condition)
+        else: #QUESTION should more AI logic happen for ungoverned cities?
+            pass
             #If there is no player governor survey for infections after a threshold
-            if state.infection_stage > 0 and state.infection_pause == 0:
-                if state.infection_stage >= self.config.survey_threshold:
-                    new.alerted = City.survey(state, False)
+            #if state.infection_stage > 0 and state.infection_pause == 0 and new.alerted == False:
+            #    if state.infection_stage >= self.config.survey_threshold:
+            #        new.alerted = City.survey(state, False)
 
         return new
 
@@ -526,6 +533,7 @@ class Game:
         for player, state in new_player_states.items():
             state.event = player.next_event
             player.add_state(state)
-            player.reset_next_event()
+        for player in self._players:
+            player.reset()
         for city, state in new_city_states.items():
             city.add_state(state)
