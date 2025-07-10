@@ -5,7 +5,7 @@ from dataclasses import dataclass, replace
 from enum import Enum, nonmember
 
 from findpatientzero.engine.entities.city import City, CityState
-from findpatientzero.engine.entities.event import Event
+from findpatientzero.engine.entities.event import Event, NULL_EVENT
 from findpatientzero.engine.entities.player import (
     CPUPlayer,
     InfectionState,
@@ -223,7 +223,7 @@ class Game:
             return all(
                 player
                 for player in self._players
-                if player.next_event is not None
+                if player.next_event is not NULL_EVENT
             )
 
         if self._phase == GamePhase.CITY_PROMPTS:
@@ -368,7 +368,7 @@ class Game:
 
         # Resolve event if there is a governor
         governor = self.get_governor(city)
-        if governor is not None and governor.next_event is not None:
+        if governor is not None:
             if governor.sus_prompt_response:
                 new.last_sus_roll = self.round
             # Actions

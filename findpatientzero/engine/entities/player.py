@@ -5,7 +5,7 @@ import random
 from enum import Enum
 
 from findpatientzero.engine.entities.city import City
-from findpatientzero.engine.entities.event import EVENTS, Event, EventCategory
+from findpatientzero.engine.entities.event import EVENTS, Event, EventCategory, NULL_EVENT
 from findpatientzero.gamedata.load import load_cpu_names
 
 
@@ -104,7 +104,7 @@ class Player:
         self._sus_prompt_response = None
         self._roll_prompt_pending = False
         self._roll_prompt_response = None
-        self._next_event = None
+        self._next_event = NULL_EVENT
         self._pending_city_prompt = False
         self._city_prompt_response = None
 
@@ -174,23 +174,16 @@ class Player:
     @property
     def next_event_choice(self) -> bool:
         """If the next event is of the choice type"""
-        if self._next_event is None:
-            return False
         return self._next_event.action == "choose"
 
     @property
     def next_event_move(self) -> bool:
         """If the next event is of the choice type"""
-        if self._next_event is None:
-            return False
         return self._next_event.action == "move"
 
     @property
     def next_event(self) -> Event:
         """The next event that the player must resolve."""
-        # If the player has no next event category, return a "no event" event
-        if self.next_event_category is EventCategory.NONE:
-            return Event()
         return self._next_event
 
     @property
@@ -352,7 +345,7 @@ class Player:
 
     def reset(self) -> None:
         """Reset for the next round."""
-        self._next_event = None
+        self._next_event = NULL_EVENT
         self._sus_prompt_response = None
         self._roll_prompt_response = None
         self._city_prompt_response = None
@@ -399,7 +392,6 @@ class Player:
 
         self._pending_city_prompt = False
         self._city_prompt_response = city
-
 
 class CPUPlayer(Player): #TODO add proper AI and AI control
     """A player that is controlled by the game engine."""

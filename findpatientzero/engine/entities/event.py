@@ -147,3 +147,9 @@ def _get_events() -> dict[EventCategory, list[Event]]:
 
 EVENTS = _get_events()
 """A dictionary of event categories and their respective event lists, including repeats based on frequency."""
+
+NULL_EVENT = Event(
+    category=EventCategory.NONE,
+    description="You take a long bath, nothing happens",
+    action="none",
+)
