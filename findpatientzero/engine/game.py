@@ -364,6 +364,7 @@ class Game:
                 if state.infection_stage > 0 and state.infection_pause == 0
                 else state.infection_stage
             ),
+            alerted=(state.infection_stage == 11),
         )
 
         # Resolve event if there is a governor
