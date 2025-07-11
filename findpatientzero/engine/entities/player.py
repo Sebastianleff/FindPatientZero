@@ -1,7 +1,7 @@
 """Player entity and related classes."""
 
-from dataclasses import dataclass, field
 import random
+from dataclasses import dataclass, field
 from enum import Enum
 
 from findpatientzero.engine.entities.city import City

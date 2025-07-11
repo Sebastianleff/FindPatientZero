@@ -2,10 +2,10 @@
 
 import random
 from dataclasses import dataclass, replace
-from enum import Enum, nonmember
+from enum import Enum
 
 from findpatientzero.engine.entities.city import City, CityState
-from findpatientzero.engine.entities.event import Event, NULL_EVENT
+from findpatientzero.engine.entities.event import NULL_EVENT
 from findpatientzero.engine.entities.player import (
     CPUPlayer,
     InfectionState,
