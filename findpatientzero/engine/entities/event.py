@@ -150,6 +150,6 @@ EVENTS = _get_events()
 
 NULL_EVENT = Event(
     category=EventCategory.NONE,
-    description="You take a long bath, nothing happens",
+    description="You take a long bath, nothing happens.",
     action="none",
 )

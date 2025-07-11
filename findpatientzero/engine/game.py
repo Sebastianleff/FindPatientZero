@@ -390,12 +390,18 @@ class Game:
                 new.conditions = ["harbor", "road", "merch"]
             elif new.event.condition is not None:
                 new.conditions.append(new.event.condition)
-        else: #QUESTION should more AI logic happen for ungoverned cities?
-            pass
-            #If there is no player governor survey for infections after a threshold
-            #if state.infection_stage > 0 and state.infection_pause == 0 and new.alerted == False:
-            #    if state.infection_stage >= self.config.survey_threshold:
-            #        new.alerted = City.survey(state, False)
+        else:
+            #QUESTION should role events or only survey?
+            #QUESTION should more AI logic happen for ungoverned cities? If so ai logic will move to own class.
+            #If there is no player governor survey for infections given conditions
+            if (
+                state.infection_stage >= self.config.survey_threshold
+                and state.infection_pause == 0
+                and not new.alerted
+                and city.can_roll_suspicious(self._round, self.config.suspicious_cooldown)
+            ):
+                new.alerted = City.survey(state, False)
+                new.last_sus_roll = self.round
 
         return new
 
