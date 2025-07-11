@@ -86,6 +86,9 @@ def main():
         except KeyError:
             print("Invalid input. Try again.")
 
+
+    print("\nLoading The Deaths And Remnants of the Warfare Inherent to Nature...")
+
     # Create a new game control object
     try:
         config = GameConfig(num_players=len(player_names), num_cities=num_cities, auto_roll=auto_roll)
@@ -95,6 +98,8 @@ def main():
         return
 
     game_over = False
+
+    print("\nD.A.R.W.I.N. Online")
 
     while not game_over:
         if game.phase == GamePhase.ROUND_START:
