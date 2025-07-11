@@ -28,6 +28,8 @@ def wait_for_enter(prompt):
 
 def main():
 
+    print("\n\033[1mLoading The Deaths And Remnants of the Warfare Inherent to Nature...\033[0m\n")
+
     game_over = False
 
     # Get human players
@@ -89,9 +91,6 @@ def main():
         except KeyError:
             print("Invalid input. Try again.")
 
-
-    print("\nLoading The Deaths And Remnants of the Warfare Inherent to Nature...")
-
     # Create a new game control object
     try:
         config = GameConfig(num_players=len(player_names), num_cities=num_cities, auto_roll=roll_response)
@@ -100,7 +99,7 @@ def main():
         print(e)
         return
 
-    print("\nD.A.R.W.I.N. Online")
+    print("\n\033[1mD.A.R.W.I.N. Online\033[0m")
 
     while not game_over:
         if game.phase == GamePhase.ROUND_START:
