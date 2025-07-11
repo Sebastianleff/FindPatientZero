@@ -28,16 +28,19 @@ def wait_for_enter(prompt):
 
 def main():
 
-    game_master_mode = False
-    auto_roll = True
+    game_over = False
 
     # Get human players
     player_names = []
     while True:
-       name = input("Enter player name (or press Enter to finish): ")
-       if name == "":
-           break
-       player_names.append(name)
+        name = input("Enter player name (or press Enter to finish): ")
+        if name == "":
+            if len(player_names) > 1:
+                break
+            else:
+                print("Please enter at least 2 names.")
+                continue
+        player_names.append(name)
 
     # Get a number of CPU players
     while True:
@@ -81,7 +84,7 @@ def main():
         user_response = input(prompt).strip()
         try:
             #Invert response to match internal logic, while still having sensible prompt phrasing
-            auto_roll = not (yes_no_map[user_response.lower()])
+            roll_response = not (yes_no_map[user_response.lower()])
             break
         except KeyError:
             print("Invalid input. Try again.")
@@ -91,13 +94,11 @@ def main():
 
     # Create a new game control object
     try:
-        config = GameConfig(num_players=len(player_names), num_cities=num_cities, auto_roll=auto_roll)
+        config = GameConfig(num_players=len(player_names), num_cities=num_cities, auto_roll=roll_response)
         game = Game(config, player_names)
     except ValueError as e:
         print(e)
         return
-
-    game_over = False
 
     print("\nD.A.R.W.I.N. Online")
 
