@@ -46,7 +46,7 @@ def main():
 
     # Get a number of CPU players
     while True:
-        num_cpu = input("Enter number of CPU players (default 6): ")
+        num_cpu = input("Enter number of AI players (default 6): ")
         if num_cpu == "":
             num_cpu = 6
             break
