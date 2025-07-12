@@ -107,6 +107,7 @@ class Player:
         self._next_event = NULL_EVENT
         self._pending_city_prompt = False
         self._city_prompt_response = None
+        self.is_cpu = False
 
     def __str__(self) -> str:
         return self._name
@@ -386,24 +387,38 @@ class Player:
         """Set the player's response to the city choice prompt.
 
         Args:
-            city (City): The city the player chose.
-
-        """
+            city (City): The city the player chose."""
 
         self._pending_city_prompt = False
         self._city_prompt_response = city
 
-class CPUPlayer(Player): #TODO add proper AI and AI control
+class CPUPlayer(Player):
     """A player that is controlled by the game engine."""
 
     names: list[str] = load_cpu_names()
     """The list of available CPU player names."""
 
-    def __init__(self) -> None:
-        """Initialize a CPU player with a random name."""
+    def __init__(self, cities: list[City]) -> None:
+        """Initialize a CPU player with a random name.
+
+        Args:
+            cities (list[City]): The list of cities in the game.
+        """
 
         index = random.randint(0, len(CPUPlayer.names) - 1)
         super().__init__(CPUPlayer.names.pop(index))
+        self._cities = cities
+        self.is_cpu = True
+
+    def prompt_roll(self):
+        """Automatically set the CPU player's response to the Roll event prompt."""
+
+        self._roll_prompt_response = random.randint(1, 100)
+
+    def prompt_city_choice(self) -> None:
+        """Automatically set the CPU player's response to the city choice prompt."""
+
+        self._city_prompt_response = random.choice(self.city_options(self._cities))
 
     def __str__(self) -> str:
-        return f"{self._name} (CPU)"
+        return f"{self._name} (AI)"

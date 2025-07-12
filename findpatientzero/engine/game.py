@@ -108,11 +108,11 @@ class Game:
         """
 
         self.config = config
+        self._cities = [City() for _ in range(config.num_cities)]
         self._players = [Player(name) for name in player_names]
         self._players += [
-            CPUPlayer() for _ in range(config.num_players - len(player_names))
+            CPUPlayer(self._cities) for _ in range(config.num_players - len(player_names))
         ]
-        self._cities = [City() for _ in range(config.num_cities)]
         self._history = []
         self._round = 0
         self._prompts_pending = False
@@ -483,7 +483,8 @@ class Game:
                 open_cities.remove(player.city)
 
         for player, state in dead_players.items():
-            if len(open_cities) == 0:
+            #CPU players should never be governors, cities themselves handle automatic City logic.
+            if len(open_cities) == 0 or player.is_cpu:
                 state.role = PlayerRole.OBSERVER
                 state.city = None
                 continue

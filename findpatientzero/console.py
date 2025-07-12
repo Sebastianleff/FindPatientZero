@@ -59,7 +59,7 @@ def main():
     # Get number of cities
     while True:
         num_cities = input(
-            f"Enter number of cities (default {len(player_names)}): " #+CPU players
+            f"Enter number of cities (default {len(player_names) + + num_cpu}): " #+CPU players
             )
         if num_cities == "":
             num_cities = len(player_names) + num_cpu
@@ -91,9 +91,19 @@ def main():
         except KeyError:
             print("Invalid input. Try again.")
 
+    #Show events for CPU players
+    while True:
+        prompt = "Do you want to show events taken by AI players? (Yes or No): "
+        user_response = input(prompt).strip()
+        try:
+            ai_events = (yes_no_map[user_response.lower()])
+            break
+        except KeyError:
+            print("Invalid input. Try again.")
+
     # Create a new game control object
     try:
-        config = GameConfig(num_players=len(player_names), num_cities=num_cities, auto_roll=roll_response)
+        config = GameConfig(num_players=len(player_names) + num_cpu, num_cities=num_cities, auto_roll=roll_response)
         game = Game(config, player_names)
     except ValueError as e:
         print(e)
@@ -165,10 +175,12 @@ def main():
         elif game.phase == GamePhase.ROLL_EVENTS:
             print("\nEvents:")
             for player in game.players:
-                if not player.next_event_choice:
-                    print(
-                        f"{player.name} - {format_event(player)}"
-                    )
+                if ai_events or not player.is_cpu:
+                    if not player.next_event_choice:
+                        print(
+                            f"{player.name} - {format_event(player)}"
+                        )
+
 
         elif game.phase == GamePhase.CITY_PROMPTS and game.prompts_pending:
             for player in game.players:
