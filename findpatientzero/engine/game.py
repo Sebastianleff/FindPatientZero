@@ -398,7 +398,7 @@ class Game:
                 new.conditions.append(new.event.condition)
         else:
             #QUESTION should role events or only survey?
-            #QUESTION should more AI logic happen for ungoverned cities? If so ai logic will move to own class.
+            #QUESTION should more AI logic happen for ungoverned cities?
             #If there is no player governor survey for infections given conditions
             if (
                 state.infection_stage >= self.config.survey_threshold
@@ -481,6 +481,7 @@ class Game:
         Returns:
             A pair of dictionaries containing the updated states of the players and cities.
         """
+
         open_cities = list(cities.keys())
         for player in self._players:
             if player.role == PlayerRole.GOVERNOR:
@@ -488,7 +489,7 @@ class Game:
                 open_cities.remove(player.city)
 
         for player, state in dead_players.items():
-            #CPU players should never be governors, cities themselves handle automatic City logic.
+            #CPU players should never be governors, city resolve method handles automatic City logic.
             if len(open_cities) == 0 or player.is_cpu:
                 state.role = PlayerRole.OBSERVER
                 state.city = None

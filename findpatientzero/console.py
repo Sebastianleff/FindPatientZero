@@ -70,7 +70,7 @@ def main():
         except ValueError:
             print("Please enter a valid number.")
 
-    #Set game master mode
+    #Choose if game master mode is on or off
     while True:
         prompt = "Do you want to turn on Game Master mode (Shows who is patient zero)? Yes or No: "
         user_response = input(prompt).strip()
@@ -91,7 +91,7 @@ def main():
         except KeyError:
             print("Invalid input. Try again.")
 
-    #Show events for CPU players
+    #Choose to show events for CPU players
     while True:
         prompt = "Do you want to show events taken by AI players? (Yes or No): "
         user_response = input(prompt).strip()
