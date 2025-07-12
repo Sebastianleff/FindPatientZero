@@ -100,14 +100,18 @@ class Player:
 
         self._name = name
         self._history = []
+
         self._sus_prompt_pending = False
         self._sus_prompt_response = None
+
         self._roll_prompt_pending = False
         self._roll_prompt_response = None
-        self._next_event = NULL_EVENT
+
         self._pending_city_prompt = False
         self._city_prompt_response = None
-        self.is_cpu = False
+
+        self._next_event = NULL_EVENT
+        self._is_cpu = False
 
     def __str__(self) -> str:
         return self._name
@@ -186,6 +190,11 @@ class Player:
     def next_event(self) -> Event:
         """The next event that the player must resolve."""
         return self._next_event
+
+    @property
+    def is_cpu(self) -> bool:
+        """Whether the player is a CPU player."""
+        return self._is_cpu
 
     @property
     def next_event_category(self) -> EventCategory:
@@ -408,7 +417,7 @@ class CPUPlayer(Player):
         index = random.randint(0, len(CPUPlayer.names) - 1)
         super().__init__(CPUPlayer.names.pop(index))
         self._cities = cities
-        self.is_cpu = True
+        self._is_cpu = True
 
     def prompt_roll(self):
         """Automatically set the CPU player's response to the Roll event prompt."""

@@ -119,50 +119,6 @@ class Game:
 
         self.game_start()
 
-    def game_start(self) -> None:
-        """Carry out the setup phase of the game."""
-        self._phase = GamePhase.GAME_START
-
-        # Initialize player states
-        city_choices = list()
-        for player in self._players:
-            if len(city_choices) == 0:
-                city_choices = random.sample(self._cities, len(self._cities))
-            city = city_choices.pop()
-            player.add_state(PlayerState(city=city))
-
-        # Pick a random player to be patient zero and infect them
-        self._patient_zero = random.choice(self._players)
-        self._patient_zero.infect_patient_zero()
-
-        # Initialize city states
-        for city in self._cities:
-            city.add_state(CityState())
-
-        # Commit initial states to history
-        self._history.append(
-            GameState(
-                round=self._round,
-                players={player: player.state for player in self._players},
-                cities={city: city.state for city in self._cities},
-            )
-        )
-
-    def get_governor(self, city: City) -> Player | None:
-        """Get the governor of a city, if one exists.
-
-        Args:
-            city: The city to check for a governor.
-
-        Returns:
-            The governor of the city, or None if there is no governor.
-        """
-
-        for player in self._players:
-            if player.city == city and player.role == PlayerRole.GOVERNOR:
-                return player
-        return None
-
     @property
     def players(self) -> list[Player]:
         """The list of players in the game."""
@@ -237,6 +193,50 @@ class Game:
             return True #TODO add check logic for resolve moves phase
 
         return False
+
+    def game_start(self) -> None:
+        """Carry out the setup phase of the game."""
+        self._phase = GamePhase.GAME_START
+
+        # Initialize player states
+        city_choices = list()
+        for player in self._players:
+            if len(city_choices) == 0:
+                city_choices = random.sample(self._cities, len(self._cities))
+            city = city_choices.pop()
+            player.add_state(PlayerState(city=city))
+
+        # Pick a random player to be patient zero and infect them
+        self._patient_zero = random.choice(self._players)
+        self._patient_zero.infect_patient_zero()
+
+        # Initialize city states
+        for city in self._cities:
+            city.add_state(CityState())
+
+        # Commit initial states to history
+        self._history.append(
+            GameState(
+                round=self._round,
+                players={player: player.state for player in self._players},
+                cities={city: city.state for city in self._cities},
+            )
+        )
+
+    def get_governor(self, city: City) -> Player | None:
+        """Get the governor of a city, if one exists.
+
+        Args:
+            city: The city to check for a governor.
+
+        Returns:
+            The governor of the city, or None if there is no governor.
+        """
+
+        for player in self._players:
+            if player.city == city and player.role == PlayerRole.GOVERNOR:
+                return player
+        return None
 
     def go_to_next_phase(self) -> bool:
         """

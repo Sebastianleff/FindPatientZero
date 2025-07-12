@@ -181,7 +181,6 @@ def main():
                             f"{player.name} - {format_event(player)}"
                         )
 
-
         elif game.phase == GamePhase.CITY_PROMPTS and game.prompts_pending:
             for player in game.players:
                 if player.pending_city_prompt:

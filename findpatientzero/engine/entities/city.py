@@ -64,16 +64,6 @@ class City:
     MAX_INFECTION_STAGE: int = max(SURVEY_THRESHOLDS.keys())
     """The maximum infection stage."""
 
-    @property
-    def in_lockdown(self) -> bool:
-        """Whether the city is in lockdown."""
-        return self.state.lockdown > 0
-
-    @property
-    def conditions(self) -> list[str]:
-        """The conditions currently affecting the city."""
-        return self.state.conditions
-
     def __init__(self) -> None:
         """
         Create a new City object.
@@ -85,6 +75,16 @@ class City:
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def in_lockdown(self) -> bool:
+        """Whether the city is in lockdown."""
+        return self.state.lockdown > 0
+
+    @property
+    def conditions(self) -> list[str]:
+        """The conditions currently affecting the city."""
+        return self.state.conditions
 
     @property
     def name(self) -> str:
