@@ -169,7 +169,7 @@ class Game:
             return all(
                 not player.sus_prompt_pending
                 for player in self._players
-                if player.role == PlayerRole.GOVERNOR
+                if player.is_governor
             )
 
         if self._phase == GamePhase.ROLL_DICE:
@@ -177,7 +177,7 @@ class Game:
                 isinstance(player.roll_prompt_response, int)
                 and 1 <= player.roll_prompt_response <= 100
                 for player in self._players
-                if player.role == PlayerRole.TRAVELER
+                if player.is_traveler
             )
 
         if self._phase == GamePhase.ROLL_EVENTS:
@@ -191,7 +191,7 @@ class Game:
             return all(
                 isinstance(player.city_prompt_response, City)
                 for player in self._players
-                if player.role == PlayerRole.TRAVELER and player.next_event_choice
+                if player.is_traveler and player.next_event_choice
             )
 
         if self._phase == GamePhase.RESOLVE_MOVES:
@@ -239,7 +239,7 @@ class Game:
         """
 
         for player in self._players:
-            if player.city == city and player.role == PlayerRole.GOVERNOR:
+            if player.city == city and player.is_governor:
                 return player
         return None
 
@@ -319,10 +319,10 @@ class Game:
         """Prompt players to input dice rolls """
 
         for player in self._players:
-            if player.role == PlayerRole.TRAVELER:
+            if player.is_traveler:
                 self._prompts_pending = True
                 player.prompt_roll()
-            elif player.role == PlayerRole.GOVERNOR and player.sus_prompt_response:
+            elif player.is_governor and player.sus_prompt_response:
                 self._prompts_pending = True
                 player.prompt_roll()
 
@@ -330,9 +330,9 @@ class Game:
         """Roll events for all players."""
 
         for player in self._players:
-            if player.role == PlayerRole.TRAVELER:
+            if player.is_traveler:
                 player.roll_next_event()
-            elif player.role == PlayerRole.GOVERNOR:
+            elif player.is_governor:
                 if player.sus_prompt_response or player.city.alerted:
                     player.roll_next_event()
 
@@ -340,7 +340,7 @@ class Game:
         """Prompt players to choose what city to move to."""
 
         for player in self._players:
-            if player.next_event_choice and not player.role == PlayerRole.OBSERVER:
+            if player.next_event_choice and not player.is_observer:
                 self._prompts_pending = True
                 player.prompt_city_choice()
 
@@ -484,7 +484,7 @@ class Game:
 
         open_cities = list(cities.keys())
         for player in self._players:
-            if player.role == PlayerRole.GOVERNOR:
+            if player.is_governor:
                 assert player.city is not None
                 open_cities.remove(player.city)
 
@@ -515,7 +515,7 @@ class Game:
         # Update player states
         new_player_states = dict()
         for player in self._players:
-            if player.role == PlayerRole.OBSERVER or player.role == PlayerRole.GOVERNOR:
+            if not player.is_traveler:
                 continue
 
             dest = player.city_move_destination(self._cities)

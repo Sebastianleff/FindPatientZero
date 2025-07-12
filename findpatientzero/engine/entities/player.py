@@ -137,6 +137,21 @@ class Player:
         return self.state.role
 
     @property
+    def is_traveler(self) -> bool:
+        """Whether the player is a traveler."""
+        return self.state.role == PlayerRole.TRAVELER
+
+    @property
+    def is_observer(self) -> bool:
+        """Whether the player is an observer."""
+        return self.state.role == PlayerRole.OBSERVER
+
+    @property
+    def is_governor(self) -> bool:
+        """Whether the player is a governor."""
+        return self.state.role == PlayerRole.GOVERNOR
+
+    @property
     def health(self) -> InfectionState:
         """The health state of the player."""
         return self.state.health
@@ -203,7 +218,7 @@ class Player:
         # If the player is dead, there is no next event
         category = EventCategory.NONE
 
-        if self.role == PlayerRole.TRAVELER:
+        if self.is_traveler:
             # Travelers not currently displaying symptoms can roll healthy events
             if self.health in [
                 InfectionState.HEALTHY,
@@ -216,7 +231,7 @@ class Player:
             elif self.health == InfectionState.SYMPTOMATIC:
                 category = EventCategory.TRAV_INFECTED
 
-        elif self.role == PlayerRole.GOVERNOR:
+        elif self.is_governor:
             assert self.city is not None
             assert self.sus_prompt_pending is False
 
@@ -289,7 +304,7 @@ class Player:
             list[City]: The cities that the player can actually try to move to."""
         
         # Verify that the event is valid
-        if self.role != PlayerRole.TRAVELER:
+        if not self.is_traveler:
             raise ValueError("Only travelers can choose cities.")
         assert self.city is not None
 
@@ -316,7 +331,7 @@ class Player:
             City: The next city a player will move to."""
 
         # Verify that the event is valid
-        if self.role != PlayerRole.TRAVELER:
+        if not self.is_traveler:
             raise ValueError("Only travelers can choose cities.")
         assert self.city is not None
 
