@@ -9,6 +9,7 @@ from findpatientzero.engine.entities.city import City, CityState
 class TestCity(unittest.TestCase):
     def setUp(self):
         self.city = City()
+        self.city.add_state(CityState())
 
     def test_city_name(self):
         self.assertIsInstance(self.city.name, str)
