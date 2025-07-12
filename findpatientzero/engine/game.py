@@ -173,7 +173,12 @@ class Game:
             )
 
         if self._phase == GamePhase.ROLL_DICE:
-            return True #TODO add check for roll dice phase
+            return all(
+                isinstance(player.roll_prompt_response, int)
+                and 1 <= player.roll_prompt_response <= 100
+                for player in self._players
+                if player.role == PlayerRole.TRAVELER
+            )
 
         if self._phase == GamePhase.ROLL_EVENTS:
             return all(
@@ -184,9 +189,9 @@ class Game:
 
         if self._phase == GamePhase.CITY_PROMPTS:
             return all(
-                (not player.pending_city_prompt)
+                isinstance(player.city_prompt_response, City)
                 for player in self._players
-                if player.role == PlayerRole.TRAVELER
+                if player.role == PlayerRole.TRAVELER and player.next_event_choice
             )
 
         if self._phase == GamePhase.RESOLVE_MOVES:
