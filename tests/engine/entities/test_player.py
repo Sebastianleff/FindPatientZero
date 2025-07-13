@@ -1,7 +1,6 @@
 """Tests for classes in the Player module."""
 
 import unittest
-from email.policy import default
 from unittest.mock import patch, PropertyMock
 
 from findpatientzero.engine.entities.city import CityState
