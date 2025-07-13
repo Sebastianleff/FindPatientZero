@@ -182,9 +182,8 @@ class Game:
 
         if self._phase == GamePhase.ROLL_EVENTS:
             return all(
-                player
+                player.next_event is not NULL_EVENT
                 for player in self._players
-                if player.next_event is not NULL_EVENT
             )
 
         if self._phase == GamePhase.CITY_PROMPTS:
