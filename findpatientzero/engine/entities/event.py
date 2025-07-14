@@ -5,6 +5,8 @@ from enum import Enum
 from findpatientzero.gamedata.load import load_conditions, load_event_types, load_events
 
 #If more events are planned in future version, events should be refactored
+#TODO change desc to be a property with random pool of flavor text for relent event type
+#TODO change yml events to event types with only frequency, amount, action and condition data.
 class EventCategory(Enum):
     """The category (wheel) of event."""
 
