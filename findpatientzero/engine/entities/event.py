@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from findpatientzero.gamedata.load import load_conditions, load_event_types, load_events
 
-
+#If more events are planned in future version, events should be refactored
 class EventCategory(Enum):
     """The category (wheel) of event."""
 
