@@ -18,7 +18,7 @@ _event_dir = os.path.join(_cwd, "events")
 
 
 def _load_file(file: str):
-    with open(file, "r") as f:
+    with open(file, "r", encoding="utf-8") as f:
         data = load(f)
     return data
 
