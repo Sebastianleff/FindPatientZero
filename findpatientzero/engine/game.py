@@ -68,6 +68,7 @@ class GamePhase(Enum):
     ROLL_EVENTS = "Rolling events"
     CITY_PROMPTS = "Prompting players to choose cities"
     RESOLVE_MOVES = "Resolving moves"
+    GUESS_PATIENT_ZERO = "Guess who is Patient Zero"
     GAME_OVER = "Game over"
     ERROR = "An error occurred"
 
@@ -99,6 +100,9 @@ class Game:
     _patient_zero: Player
     """The player who is patient zero of the epidemic."""
 
+    patient_zero_suspect: Player | None
+    """The player who is suspected of being pateint zero of the epidemic."""
+
     def __init__(self, config: GameConfig, player_names: list[str]):
         """Initialize a new game with the given configuration and player names.
 
@@ -116,6 +120,7 @@ class Game:
         self._history = []
         self._round = 0
         self._prompts_pending = False
+        self.patient_zero_suspect = None
 
         self.game_start()
 
@@ -150,10 +155,30 @@ class Game:
         return self._prompts_pending
 
     @property
-    def game_over(self) -> bool:
-        """If the game has ended."""
-        return all(player.state.health == InfectionState.DEAD or player.state.health == InfectionState.IMMUNE
+    def all_dead(self) -> bool:
+        """If all players are dead."""
+        return all(player.state.health == InfectionState.DEAD for player in self._players)
+
+    @property
+    def all_immune(self) -> bool:
+        """If all players are immune."""
+        return all(player.state.health == InfectionState.IMMUNE for player in self._players)
+
+    @property
+    def all_dead_or_immune(self) -> bool:
+        """If all players are dead or immune."""
+        return all(player.state.health == InfectionState.IMMUNE or player.state.health == InfectionState.DEAD
                    for player in self._players)
+
+    @property
+    def suspect_is_patient_zero(self) -> bool:
+        """Check if the suspect is patient zero."""
+        return self._patient_zero == self.patient_zero_suspect
+
+    @property
+    def game_over(self) -> bool:
+        """Check if the game is over."""
+        return any([self.all_dead_or_immune, self.suspect_is_patient_zero])
 
     @property
     def phase_complete(self) -> bool:
@@ -193,8 +218,16 @@ class Game:
                 if player.is_traveler and player.next_event_choice
             )
 
+        if self._phase == GamePhase.GUESS_PATIENT_ZERO:
+            #TODO Figure out if there is a actually good way to do a check here
+            return True
+
         if self._phase == GamePhase.RESOLVE_MOVES:
             return True #TODO add check logic for resolve moves phase
+
+        if self._phase == GamePhase.GAME_OVER:
+            #No check is needed, game phase can only be reached with existing check.
+            return True
 
         return False
 
@@ -251,7 +284,7 @@ class Game:
         """
 
         if not self.phase_complete:
-            raise RuntimeError("Cannot advance phase: current phase is not complete.")
+            raise RuntimeError(f"Cannot advance phase: phase '{self._phase.name}' is not complete.")
 
         if self._phase == GamePhase.GAME_START:
             self._phase = GamePhase.ROUND_START
@@ -285,6 +318,10 @@ class Game:
             self.resolve_moves()
 
         elif self._phase == GamePhase.RESOLVE_MOVES:
+            self.patient_zero_suspect = None
+            self._phase = GamePhase.GUESS_PATIENT_ZERO
+
+        elif self._phase == GamePhase.GUESS_PATIENT_ZERO:
             if self.game_over:
                 self._phase = GamePhase.GAME_OVER
             else:

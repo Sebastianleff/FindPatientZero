@@ -1,4 +1,5 @@
 """Console-based interface for the game."""
+from findpatientzero.engine.entities.player import InfectionState
 from findpatientzero.engine.game import Game, GameConfig, GamePhase
 
 yes_no_map = {
@@ -205,11 +206,48 @@ def main():
                         else:
                             print("Invalid input. Try again.")
 
+        elif game.phase == GamePhase.GUESS_PATIENT_ZERO:
+            if any(player.state.health == InfectionState.SYMPTOMATIC for player in game.players):
+                prompt = (
+                        "\nPlease guess which player is Patient Zero, press enter to skip guessing.\n"
+                        + "\n".join(f"{idx}: {player}" for idx, player in enumerate(game.players, 1))
+                        + "\nInput: "
+                )
+                while True:
+                    user_response = input(prompt).strip()
+                    if user_response == "":
+                        break
+                    chosen_player = next(
+                        (player for player in game.players if str(player).lower() == user_response.lower()), None)
+                    if chosen_player is None:
+                        try:
+                            chosen_player = game.players[int(user_response) - 1]
+                        except (ValueError, IndexError):
+                            pass
+                    if chosen_player:
+                        game.patient_zero_suspect = chosen_player
+                        break
+                    else:
+                        print("Invalid input. Try again.")
+
+        elif game.phase == GamePhase.GAME_OVER:
+            if game.all_dead:
+                print("\nGame over. You all succumbed to plague")
+            elif game.all_immune:
+                print("\nGame over. You are all immune to plague, you got lucky")
+            elif game.suspect_is_patient_zero:
+                print("\nGame over. You found out who is Patient Zero")
+            else:
+                print("\nGame over. \nSurvivors with immunity: " +
+                      ", ".join(player.name for player in game.players if player.state.health == InfectionState.IMMUNE))
+                print("Players who died: " +
+                      ", ".join(player.name for player in game.players if player.state.health == InfectionState.DEAD))
+            break
+
         game.go_to_next_phase()
-        game_over = game.phase == GamePhase.GAME_OVER
         assert game.phase != GamePhase.ERROR
 
-    print("Game over")
+    print("\n\033[1mD.A.R.W.I.N. Offline\033[0m")
 
 if __name__ == "__main__":
     main()
