@@ -182,7 +182,7 @@ class Game:
 
         if self._phase == GamePhase.ROLL_EVENTS:
             return all(
-                player.next_event is not NULL_EVENT
+                player.state.health == InfectionState.DEAD or player.next_event is not NULL_EVENT
                 for player in self._players
             )
 
