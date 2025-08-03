@@ -249,6 +249,7 @@ def main():
         assert game.phase != GamePhase.ERROR
 
     print("\n\033[1mD.A.R.W.I.N. Offline\033[0m")
+    wait_for_enter("\nPress Enter to end game.")
 
 if __name__ == "__main__":
     main()
