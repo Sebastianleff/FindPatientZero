@@ -60,7 +60,7 @@ def main():
     # Get number of cities
     while True:
         num_cities = input(
-            f"Enter number of cities (default {len(player_names) + + num_cpu}): " #+CPU players
+            f"Enter number of cities (default {len(player_names) + + num_cpu}): "
             )
         if num_cities == "":
             num_cities = len(player_names) + num_cpu
@@ -207,7 +207,8 @@ def main():
                             print("Invalid input. Try again.")
 
         elif game.phase == GamePhase.GUESS_PATIENT_ZERO:
-            if any(player.state.health == InfectionState.SYMPTOMATIC for player in game.players):
+            if any(player.state.health in (InfectionState.SYMPTOMATIC, InfectionState.DEAD, InfectionState.IMMUNE)
+                   for player in game.players):
                 prompt = (
                         "\nPlease guess which player is Patient Zero, press enter to skip guessing.\n"
                         + "\n".join(f"{idx}: {player}" for idx, player in enumerate(game.players, 1))
