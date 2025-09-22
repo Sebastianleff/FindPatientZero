@@ -38,7 +38,7 @@ def main():
     while True:
         name = input("Enter player name (or press Enter to finish): ")
         if name == "":
-            if len(player_names) == 1:
+            if len(player_names) >= 1:
                 break
             else:
                 print("Please enter at least 1 name.")
