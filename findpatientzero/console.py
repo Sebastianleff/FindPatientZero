@@ -51,6 +51,9 @@ def main():
         if num_cpu == "":
             num_cpu = 6
             break
+        if len(player_names) <= 1 and int(num_cpu) <= 0:
+            num_cpu = 1
+            break
         try:
             num_cpu = int(num_cpu)
             break
@@ -92,15 +95,16 @@ def main():
         except KeyError:
             print("Invalid input. Try again.")
 
-    #Choose to show events for CPU players
-    while True:
-        prompt = "Do you want to show events taken by AI players? (Yes or No): "
-        user_response = input(prompt).strip()
-        try:
-            ai_events = (yes_no_map[user_response.lower()])
-            break
-        except KeyError:
-            print("Invalid input. Try again.")
+    #Choose to show events for CPU players if more then 0
+    if num_cpu > 0:
+        while True:
+            prompt = "Do you want to show events taken by AI players? (Yes or No): "
+            user_response = input(prompt).strip()
+            try:
+                ai_events = (yes_no_map[user_response.lower()])
+                break
+            except KeyError:
+                print("Invalid input. Try again.")
 
     # Create a new game control object
     try:
