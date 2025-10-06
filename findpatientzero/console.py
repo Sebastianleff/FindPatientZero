@@ -105,6 +105,17 @@ def main():
                 break
             except KeyError:
                 print("Invalid input. Try again.")
+    else:
+        ai_events = False
+
+    while True:
+        prompt = "Do you want to have the guessing round? (Yes or No): "
+        user_response = input(prompt).strip()
+        try:
+            guess_round = (yes_no_map[user_response.lower()])
+            break
+        except KeyError:
+            print("Invalid input. Try again.")
 
     # Create a new game control object
     try:
@@ -210,7 +221,7 @@ def main():
                         else:
                             print("Invalid input. Try again.")
 
-        elif game.phase == GamePhase.GUESS_PATIENT_ZERO:
+        elif game.phase == GamePhase.GUESS_PATIENT_ZERO and guess_round == True:
             if any(player.state.health in (InfectionState.SYMPTOMATIC, InfectionState.DEAD, InfectionState.IMMUNE)
                    for player in game.players):
                 prompt = (
