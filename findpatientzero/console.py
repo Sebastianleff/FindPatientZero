@@ -32,6 +32,7 @@ def main():
     print("\n\033[1mLoading The Deaths And Remnants of the Warfare Inherent to Nature...\033[0m\n")
 
     game_over = False
+    deliberation_round_counter = 0
 
     # Get human players
     player_names = []
@@ -108,14 +109,30 @@ def main():
     else:
         ai_events = False
 
+    #Choose if there will be a deliberation round
     while True:
-        prompt = "Do you want to have the guessing round? (Yes or No): "
+        prompt = "Do you want to have the deliberation round? (Yes or No): "
         user_response = input(prompt).strip()
         try:
-            guess_round = (yes_no_map[user_response.lower()])
+            deliberation_round = (yes_no_map[user_response.lower()])
             break
         except KeyError:
             print("Invalid input. Try again.")
+
+    if deliberation_round:
+        while True:
+            deliberation_round_frequency = input("How often should the deliberation round be? (Default 4): ")
+            if deliberation_round_frequency == "":
+                deliberation_round_frequency = 4
+                break
+            try:
+                deliberation_round_frequency = int(deliberation_round_frequency)
+                break
+            except ValueError:
+                print("Please enter a valid number.")
+    else:
+        deliberation_round_frequency = 0
+
 
     # Create a new game control object
     try:
@@ -129,6 +146,7 @@ def main():
 
     while not game_over:
         if game.phase == GamePhase.ROUND_START:
+            deliberation_round_counter += 1
             wait_for_enter("\nPress Enter to start round...")
             if not game_master_mode:
                 print(
@@ -221,9 +239,12 @@ def main():
                         else:
                             print("Invalid input. Try again.")
 
-        elif game.phase == GamePhase.GUESS_PATIENT_ZERO and guess_round == True:
+        elif (game.phase == GamePhase.GUESS_PATIENT_ZERO
+            and deliberation_round == True
+            and deliberation_round_frequency <= deliberation_round_counter):
             if any(player.state.health in (InfectionState.SYMPTOMATIC, InfectionState.DEAD, InfectionState.IMMUNE)
                    for player in game.players):
+                deliberation_round_counter = 0
                 prompt = (
                         "\nPlease guess which player is Patient Zero, press enter to skip guessing.\n"
                         + "\n".join(f"{idx}: {player}" for idx, player in enumerate(game.players, 1))
@@ -259,6 +280,7 @@ def main():
                 print("Players who died: " +
                       ", ".join(player.name for player in game.players if player.state.health == InfectionState.DEAD))
             break
+
 
         game.go_to_next_phase()
         assert game.phase != GamePhase.ERROR

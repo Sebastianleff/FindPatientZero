@@ -62,13 +62,13 @@ class GamePhase(Enum):
     """The phase of a game."""
 
     GAME_START = "Starting a new game"
-    ROUND_START = "Starting a new round"
+    ROUND_START = "Starting a new round" #TODO add govern select at round start when needed
     SUS_PROMPTS = "Governors deciding whether to roll a Suspicious event"
-    ROLL_DICE = "Players input dice roll for events"
+    ROLL_DICE = "Players input dice roll for events" #TODO add manual rolling for goveners, possibly switch with sus prompts?
     ROLL_EVENTS = "Rolling events"
     CITY_PROMPTS = "Prompting players to choose cities"
     RESOLVE_MOVES = "Resolving moves"
-    GUESS_PATIENT_ZERO = "Guess who is Patient Zero"
+    GUESS_PATIENT_ZERO = "Guess who is Patient Zero" #TODO wrong guesses are killed and inform others they are not PZ, only every 4 turns for singlplayer, rename deliberation round,
     GAME_OVER = "Game over"
     ERROR = "An error occurred"
 
