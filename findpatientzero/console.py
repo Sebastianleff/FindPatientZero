@@ -1,6 +1,8 @@
 """Console-based interface for the game."""
+import random
 from findpatientzero.engine.entities.player import InfectionState
 from findpatientzero.engine.game import Game, GameConfig, GamePhase
+from findpatientzero.gamedata.load import load_console_text
 
 console_text = load_console_text()
 yes_no_map = console_text["yes_no_map"]
@@ -263,6 +265,18 @@ def main():
                             pass
                     if chosen_player:
                         game.patient_zero_suspect = chosen_player
+                        #NOTE game logic does not recognize player death until after resolve, this is flavor text only
+                        #it should stay current to game logic in current form, but if refactored double check
+                        if not game.suspect_is_patient_zero:
+                            if game.patient_zero_suspect.is_traveler:
+                                print(f"{chosen_player.name} {random.choice(wrongly_accused_traveler)}"
+                                      f"\nThey were not Patient Zero.")
+                            elif game.patient_zero_suspect.is_governor:
+                                print(f"{chosen_player.name} {random.choice(wrongly_accused_governor)}"
+                                      f"\nThey were not Patient Zero.")
+                            elif game.patient_zero_suspect.is_observer:
+                                print(f"{chosen_player.name} {random.choice(wrongly_accused_observer)}"
+                                      f"\nThey were not Patient Zero.")
                         break
                     else:
                         print("Invalid input. Try again.")

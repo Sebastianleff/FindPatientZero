@@ -314,17 +314,19 @@ class Game:
 
         elif self._phase == GamePhase.CITY_PROMPTS:
             self._prompts_pending = False
-            self._phase = GamePhase.RESOLVE_MOVES
-            self.resolve_moves()
-
-        elif self._phase == GamePhase.RESOLVE_MOVES:
-            self.patient_zero_suspect = None
             self._phase = GamePhase.GUESS_PATIENT_ZERO
 
         elif self._phase == GamePhase.GUESS_PATIENT_ZERO:
+            if not self.suspect_is_patient_zero and self.patient_zero_suspect is not None:
+                self.patient_zero_suspect.state.to_be_killed = True
+            self._phase = GamePhase.RESOLVE_MOVES
+
+        elif self._phase == GamePhase.RESOLVE_MOVES:
+            self.resolve_moves()
             if self.game_over:
                 self._phase = GamePhase.GAME_OVER
             else:
+                self.patient_zero_suspect = None
                 self._phase = GamePhase.ROUND_START
                 self.round_start()
 
@@ -473,7 +475,10 @@ class Game:
             # Move to the next city
             assert new.city is not None
             # Update health status
-            if (
+            if current_player.to_be_killed:
+                new.health = InfectionState.DEAD
+                new.to_be_killed = False
+            elif (
                 current_player.health == InfectionState.HEALTHY
                 and dest.infection_stage > 0
             ):

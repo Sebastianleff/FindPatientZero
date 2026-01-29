@@ -57,6 +57,9 @@ class PlayerState:
     city: City | None = None
     """The city the player is currently in."""
 
+    to_be_killed: bool = False
+    """True if the player is to be killed in the next round. Used by resolve in game logic"""
+
     event: Event = field(default_factory=Event)
     """The event that the player resolved this round."""
 
