@@ -286,6 +286,8 @@ def main():
         assert game.phase != GamePhase.ERROR
 
     print("\n\033[1mD.A.R.W.I.N. Offline\033[0m")
+    print("Thank you for playing.\nGame Design by Anastasio Bonhomme\nPrograming and Software Design"
+          " by Valentina Proskauer Valerio and Sebastian Leff")
     wait_for_enter("\nPress Enter to end game.")
 
 if __name__ == "__main__":
