@@ -2,12 +2,12 @@
 from findpatientzero.engine.entities.player import InfectionState
 from findpatientzero.engine.game import Game, GameConfig, GamePhase
 
-yes_no_map = {
-    "yes": True,
-    "y": True,
-    "no": False,
-    "n": False,
-}
+console_text = load_console_text()
+yes_no_map = console_text["yes_no_map"]
+wrongly_accused_traveler = console_text["wrongly_accused_traveler"]
+wrongly_accused_governor = console_text["wrongly_accused_governor"]
+wrongly_accused_observer = console_text["wrongly_accused_observer"]
+
 
 def format_event(player) -> str:
     """Return the event flavor text with player-specific information."""

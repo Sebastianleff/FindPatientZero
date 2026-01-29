@@ -11,6 +11,7 @@ from findpatientzero.gamedata.schema import (
     EventTypeData,
     EventTypeList,
     NameList,
+    ConsoleTextData,
 )
 
 _cwd = os.path.join(os.path.dirname(__file__))
@@ -48,3 +49,7 @@ def load_conditions(key: str) -> list[ConditionData]:
 def load_events(key: str) -> list[EventData]:
     loaded: EventList = _load_file(os.path.join(_event_dir, f"{key}.yml"))
     return loaded["events"]
+
+
+def load_console_text() -> ConsoleTextData:
+    return _load_file(os.path.join(_cwd, "console_dynamic_text.yml"))
