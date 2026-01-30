@@ -419,6 +419,10 @@ class Player:
         self._pending_city_prompt = False
         self._city_prompt_response = city
 
+    def kill(self) -> None:
+        """Kill the player in the next resolve phase."""
+        self.state.to_be_killed = True
+
 class CPUPlayer(Player):
     """A player that is controlled by the game engine."""
 

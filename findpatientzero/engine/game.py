@@ -318,7 +318,7 @@ class Game:
 
         elif self._phase == GamePhase.GUESS_PATIENT_ZERO:
             if not self.suspect_is_patient_zero and self.patient_zero_suspect is not None:
-                self.patient_zero_suspect.state.to_be_killed = True
+                self.patient_zero_suspect.kill()
             self._phase = GamePhase.RESOLVE_MOVES
 
         elif self._phase == GamePhase.RESOLVE_MOVES:
