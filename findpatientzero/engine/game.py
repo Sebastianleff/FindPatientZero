@@ -407,9 +407,10 @@ class Game:
                 if state.infection_stage > 0 and state.infection_pause == 0
                 else state.infection_stage
             ),
-            alerted=(state.infection_stage == City.MAX_INFECTION_STAGE),
         )
 
+        #Check if max infection to alert and/or roll over active alerts
+        new.alerted = new.alerted or (new.infection_stage == City.MAX_INFECTION_STAGE)
         # Resolve event if there is a governor
         governor = self.get_governor(city)
         if governor is not None:
