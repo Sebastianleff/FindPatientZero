@@ -20,7 +20,7 @@ class CityState:
     alerted: bool = False
     """Whether the city has been alerted to an epidemic."""
 
-    lockdown: int = 0 #QUESTION, is this implmented, and should it restric players. 
+    lockdown: int = 0 #QUESTION, is this implemented, and should it restrict players.
     """The number of rounds of lockdown remaining."""
 
     infection_pause: int = 0

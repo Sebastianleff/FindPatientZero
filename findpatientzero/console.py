@@ -273,7 +273,7 @@ def main():
                                       f"\nThey were not Patient Zero.")
                             elif game.patient_zero_suspect.is_governor:
                                 print(f"{chosen_player.name} {random.choice(wrongly_accused_governor)}"
-                                      f"\nThey were not Patient Zero.")
+                                      f"\nThey are not Patient Zero.")
                             elif game.patient_zero_suspect.is_observer:
                                 print(f"{chosen_player.name} {random.choice(wrongly_accused_observer)}"
                                       f"\nThey were not Patient Zero.")

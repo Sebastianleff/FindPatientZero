@@ -101,7 +101,7 @@ class Game:
     """The player who is patient zero of the epidemic."""
 
     patient_zero_suspect: Player | None
-    """The player who is suspected of being pateint zero of the epidemic."""
+    """The player who is suspected of being patient zero of the epidemic."""
 
     def __init__(self, config: GameConfig, player_names: list[str]):
         """Initialize a new game with the given configuration and player names.
@@ -360,7 +360,7 @@ class Game:
             if player.is_traveler:
                 self._prompts_pending = True
                 player.prompt_roll()
-            elif player.is_governor and player.sus_prompt_response:
+            elif player.is_governor and (player.sus_prompt_response or player.city.alerted):
                 self._prompts_pending = True
                 player.prompt_roll()
 
@@ -407,7 +407,7 @@ class Game:
                 if state.infection_stage > 0 and state.infection_pause == 0
                 else state.infection_stage
             ),
-            alerted=(state.infection_stage == 11),
+            alerted=(state.infection_stage == City.MAX_INFECTION_STAGE),
         )
 
         # Resolve event if there is a governor
@@ -437,7 +437,8 @@ class Game:
         else:
             #QUESTION should role events or only survey?
             #QUESTION should more AI logic happen for ungoverned cities?
-            #If there is no player governor survey for infections given conditions
+            #If there is no player governor survey for infections given conditions (AI player can not be gov, so all
+            #logic for cities automatic governors happens here
             if (
                 state.infection_stage >= self.config.survey_threshold
                 and state.infection_pause == 0
