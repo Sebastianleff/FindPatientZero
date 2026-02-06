@@ -203,6 +203,8 @@ def main():
                             roll = int(user_response)
                             if not 1 <= roll <= 100:
                                 raise ValueError
+                            if roll == 69:
+                                print("Nice")
                             player.respond_roll(roll)
                             break
                         except ValueError:
