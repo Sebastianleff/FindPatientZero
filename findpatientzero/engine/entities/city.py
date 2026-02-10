@@ -2,9 +2,7 @@
 
 from dataclasses import dataclass, field
 from random import randint
-
 from findpatientzero.engine.entities.event import Event
-from findpatientzero.gamedata.load import load_city_names
 
 
 @dataclass
@@ -36,9 +34,6 @@ class CityState:
 class City:
     """A city in the game."""
 
-    names: list[str] = load_city_names()
-    """The list of available city names."""
-
     _name: str
     """The name of the city."""
 
@@ -64,13 +59,12 @@ class City:
     MAX_INFECTION_STAGE: int = max(SURVEY_THRESHOLDS.keys())
     """The maximum infection stage."""
 
-    def __init__(self) -> None:
+    def __init__(self, city_name: str) -> None:
         """
         Create a new City object.
-        The city will be assigned a random name from the list of available names.
         """
-        index = randint(0, len(City.names) - 1)
-        self._name = City.names.pop(index)
+
+        self._name = city_name
         self._history = []
 
     def __str__(self) -> str:

@@ -103,7 +103,7 @@ class Game:
     patient_zero_suspect: Player | None
     """The player who is suspected of being patient zero of the epidemic."""
 
-    def __init__(self, config: GameConfig, player_names: list[str]):
+    def __init__(self, config: GameConfig, player_names: list[str], city_names: list[str]):
         """Initialize a new game with the given configuration and player names.
 
         Args:
@@ -112,7 +112,7 @@ class Game:
         """
 
         self.config = config
-        self._cities = [City() for _ in range(config.num_cities)]
+        self._cities = [City(city_names.pop(0)) for _ in range(config.num_cities)]
         self._players = [Player(name) for name in player_names]
         self._players += [
             CPUPlayer(self._cities) for _ in range(config.num_players - len(player_names))

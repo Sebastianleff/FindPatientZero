@@ -2,14 +2,14 @@
 import random
 from findpatientzero.engine.entities.player import InfectionState
 from findpatientzero.engine.game import Game, GameConfig, GamePhase
-from findpatientzero.gamedata.load import load_console_text
+from findpatientzero.gamedata.load import load_console_text, load_city_names
 
 console_text = load_console_text()
 yes_no_map = console_text["yes_no_map"]
 wrongly_accused_traveler = console_text["wrongly_accused_traveler"]
 wrongly_accused_governor = console_text["wrongly_accused_governor"]
 wrongly_accused_observer = console_text["wrongly_accused_observer"]
-
+names: list[str] = load_city_names()
 
 def format_event(player) -> str:
     """Return the event flavor text with player-specific information."""
@@ -76,6 +76,8 @@ def main():
             break
         except ValueError:
             print("Please enter a valid number.")
+    city_names = [names.pop(random.randint(0, len(names) - 1)) for _ in range(num_cities)]
+    print(f"Cities that will be in the Game{city_names}")
 
     #Choose if game master mode is on or off
     while True:
@@ -139,7 +141,7 @@ def main():
     # Create a new game control object
     try:
         config = GameConfig(num_players=len(player_names) + num_cpu, num_cities=num_cities, auto_roll=roll_response)
-        game = Game(config, player_names)
+        game = Game(config, player_names, city_names)
     except ValueError as e:
         print(e)
         return
