@@ -112,7 +112,7 @@ class Game:
         """
 
         self.config = config
-        self._cities = [City(city_names.pop(0)) for _ in range(config.num_cities)]
+        self._cities = [City(name) for name in city_names]
         self._players = [Player(name) for name in player_names]
         self._players += [
             CPUPlayer(self._cities) for _ in range(config.num_players - len(player_names))
