@@ -36,6 +36,22 @@ def main():
     game_over = False
     deliberation_round_counter = 0
 
+    # Get number of cities
+    while True:
+        num_cities = input(
+            f"Enter number of cities (default 8): "
+        )
+        if num_cities == "":
+            num_cities = 8
+            break
+        try:
+            num_cities = int(num_cities)
+            break
+        except ValueError:
+            print("Please enter a valid number.")
+    city_names = [names.pop(random.randint(0, len(names) - 1)) for _ in range(num_cities)]
+    print(f"Cities that will be in the Game{city_names}")
+
     # Get human players
     player_names = []
     while True:
@@ -62,22 +78,6 @@ def main():
             break
         except ValueError:
             print("Please enter a valid number.")
-
-    # Get number of cities
-    while True:
-        num_cities = input(
-            f"Enter number of cities (default {len(player_names) + + num_cpu}): "
-            )
-        if num_cities == "":
-            num_cities = len(player_names) + num_cpu
-            break
-        try:
-            num_cities = int(num_cities)
-            break
-        except ValueError:
-            print("Please enter a valid number.")
-    city_names = [names.pop(random.randint(0, len(names) - 1)) for _ in range(num_cities)]
-    print(f"Cities that will be in the Game{city_names}")
 
     #Choose if game master mode is on or off
     while True:
@@ -161,7 +161,7 @@ def main():
                               enumerate(game.players))
                     + "\n\nCITIES"
                     + "".join(
-                        f"\n\t{city} (Alerted: {city.alerted})"
+                        f"\n\t{i+1}:{city} (Alerted: {city.alerted})"
                         for i, city in enumerate(game.cities)
                     )
                 )
@@ -177,7 +177,7 @@ def main():
                     )
                     + "\n\nCITIES"
                     + "".join(
-                        f"\n\t{city} (Infection: {city.infection_stage}, Alerted: {city.alerted} )"
+                        f"\n\t{i+1}:{city} (Infection: {city.infection_stage}, Alerted: {city.alerted} )"
                         for i, city in enumerate(game.cities)
                     )
                 )
