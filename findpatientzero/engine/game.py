@@ -109,6 +109,7 @@ class Game:
         Args:
             config: The configuration of the game.
             player_names: The names of the players in the game.
+            city_names: The names of the cities in the game.
         """
 
         self.config = config
