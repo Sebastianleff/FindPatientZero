@@ -68,7 +68,7 @@ class GamePhase(Enum):
     ROLL_EVENTS = "Rolling events"
     CITY_PROMPTS = "Prompting players to choose cities"
     RESOLVE_MOVES = "Resolving moves"
-    GUESS_PATIENT_ZERO = "Guess who is Patient Zero" #TODO wrong guesses are killed and inform others they are not PZ, only every 4 turns for singlplayer, rename deliberation round,
+    GUESS_PATIENT_ZERO = "Guess who is Patient Zero"
     GAME_OVER = "Game over"
     ERROR = "An error occurred"
 
