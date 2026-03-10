@@ -4,6 +4,7 @@ from findpatientzero.engine.entities.player import InfectionState
 from findpatientzero.engine.game import Game, GameConfig, GamePhase
 from findpatientzero.gamedata.load import load_console_text, load_city_names
 
+
 console_text = load_console_text()
 yes_no_map = console_text["yes_no_map"]
 wrongly_accused_traveler = console_text["wrongly_accused_traveler"]
