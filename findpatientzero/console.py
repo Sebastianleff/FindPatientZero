@@ -12,6 +12,7 @@ wrongly_accused_governor = console_text["wrongly_accused_governor"]
 wrongly_accused_observer = console_text["wrongly_accused_observer"]
 names: list[str] = load_city_names()
 
+
 def format_event(player) -> str:
     """Return the event flavor text with player-specific information."""
 
